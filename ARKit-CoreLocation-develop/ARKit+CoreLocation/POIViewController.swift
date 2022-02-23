@@ -268,69 +268,48 @@ extension POIViewController {
         let access_key = "AKIAY4WGH3URFU3AQXC3"
         let secret_key = "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"
         
-        let urlString = "https://api.golfbert.com/v1/courses"
+//        let urlString = "https://api.golfbert.com/v1/courses"
+        let urlString = "https://golfbert.com/courses/holes/1593"
         var urlRequest = URLRequest(url:URL(string: urlString)!)
         
-//        let signature = kSecAttrPRFHmacAlgSHA256()
         let date = Date()
         let format = DateFormatter()
         format.dateFormat = "yyyyMMdd'T'HHmmss'Z'"
         let timestamp = format.string(from: date)
         format.dateFormat = "yyyyMMdd"
         let timestamp2 = format.string(from: date)
-//        let stringToSign = "AWS4-HMAC-SHA256\n" + timestamp + "\n" + timestamp2 + "us-west-1/iam/aws4_request"
         
         urlRequest.httpMethod = "GET"
         urlRequest.addValue(API_token, forHTTPHeaderField: "x-api-key")
         urlRequest.addValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
-        urlRequest.addValue("api.golfbert.com", forHTTPHeaderField: "Host")
-        urlRequest.addValue(timestamp, forHTTPHeaderField: "X-Amz-Date")
+//        urlRequest.addValue("api.golfbert.com", forHTTPHeaderField: "Host")
+//        urlRequest.addValue(timestamp, forHTTPHeaderField: "X-Amz-Date")
         
         try! urlRequest.sign(accessKeyId: access_key, secretAccessKey: secret_key)
-//        guard let signature = hmacStringToSign(stringToSign: stringToSign, secretSigningKey:secret_key, shortDateString:timestamp2)
-//            else { return .none }
-//        let authorization = "AWS4-HMAC-SHA256 Credential=" + access_key + "/" + timestamp2 + "/us-east-1/iam/aws4_request, SignedHeaders=content-type;host;x-amz-date, Signature=" + signature
-//        let signing = HMAC<Insecure.SHA1>(HMAC<Insecure.SHA1>(HMAC<Insecure.SHA1>(HMAC<Insecure.SHA1>("AWS4" + secret_key,timestamp2),"us-west-1"),"iam"),"aws4_request")
-//        urlRequest.addValue(authorization, forHTTPHeaderField: "Authorization")
-        
-        let body: [String: AnyHashable] = [
-            "id": 1593,
-            "address": [
-                "country": "USA",
-                "street": "7925 Hollister Ave",
-                "city": "Goleta",
-                "state": "California",
-                "zip": "93117"
-            ],
-            "name": "Sandpiper Golf Course",
-            "phonenumber": "(805) 968 1541",
-            "coordinates": [
-                "lat": 34.42711,
-                "long": -119.90521
-            ]
-        ]
-//        urlRequest.httpBody = try? JSONSerialization.data(withJSONObject: body, options: .fragmentsAllowed)
         
         let task = URLSession.shared.dataTask(with: urlRequest) { data, a, error in
-//            guard let data = data, error == nil else{
-//                return
-//            }
-//
-//            // Convert to JSON
-//            do{
-//                print("CONVERTING TO JSON")
-////                let response = try JSONDecoder().decode(Response.self, from: data)
-//                let response = try? JSONSerialization.jsonObject(with: data, options: [])
-//                print("SUCCEDDED")
-//                print(response)
-//            }
-//            catch{
-//                print(error)
-//            }
+            if error != nil {
+                print(error)
+                return
+            }
             guard let data = data else { return }
             print(String(data: data, encoding: .utf8)!)
         }
         task.resume()
+        
+//        let path = UIBezierPath()
+//        path.move(to: CGPoint(x: 0.0, y: 0.0))
+//        // Create a line between the starting point and the bottom-left side of the view.
+//        path.addLine(to: CGPoint(x: 0.0, y: self.frame.size.height))
+//
+//        // Create the bottom line (bottom-left to bottom-right).
+//        path.addLine(to: CGPoint(x: self.frame.size.width, y: self.frame.size.height))
+//
+//        // Create the vertical line from the bottom-right to the top-right side.
+//        path.addLine(to: CGPoint(x: self.frame.size.width, y: 0.0))
+     
+        // Close the path. This will create the last line automatically.
+//        path.close()
         
         var nodes: [LocationAnnotationNode] = []
 

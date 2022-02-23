@@ -1,1 +1,0 @@
-# Virtual_Golf_Path_Assistant

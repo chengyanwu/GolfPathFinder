@@ -386,8 +386,8 @@ public extension SceneLocationView {
                                       locationManager: sceneLocationManager,
                                       onCompletion: {})
             sceneNode?.addChildNode($0)
+            }
         }
-    }
     }
 
     func removeRoutes(routes: [MKRoute]) {
