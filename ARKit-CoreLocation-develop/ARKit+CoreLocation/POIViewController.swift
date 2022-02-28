@@ -269,64 +269,58 @@ extension POIViewController {
         let secret_key = "WvfeFs+wB1Veh91qv+hMdoEGeAqpckodelfR+iHd"
         
 //        let urlString = "https://api.golfbert.com/v1/courses"
-        let urlString = "https://golfbert.com/courses/holes/1593"
+        let urlString = "https://api.golfbert.com/v1/courses/1593/holes"
         var urlRequest = URLRequest(url:URL(string: urlString)!)
-        
-        let date = Date()
-        let format = DateFormatter()
-        format.dateFormat = "yyyyMMdd'T'HHmmss'Z'"
-        let timestamp = format.string(from: date)
-        format.dateFormat = "yyyyMMdd"
-        let timestamp2 = format.string(from: date)
         
         urlRequest.httpMethod = "GET"
         urlRequest.addValue(API_token, forHTTPHeaderField: "x-api-key")
         urlRequest.addValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
-//        urlRequest.addValue("api.golfbert.com", forHTTPHeaderField: "Host")
-//        urlRequest.addValue(timestamp, forHTTPHeaderField: "X-Amz-Date")
         
         try! urlRequest.sign(accessKeyId: access_key, secretAccessKey: secret_key)
+//        var flag1_lat: Double = 34.42897256495137
+//        var flag1_long: Double = -119.90183651447296
+        var flag1_lat: Double = 0
+        var flag1_long: Double = 0
         
-        let task = URLSession.shared.dataTask(with: urlRequest) { data, a, error in
-            if error != nil {
-                print(error)
-                return
-            }
-            guard let data = data else { return }
-            print(String(data: data, encoding: .utf8)!)
-        }
+//        let task = URLSession.shared.dataTask(with: urlRequest) { data, a, error in
+//            guard error == nil else { return }
+//            guard let data = data else { return }
+//            do{
+//                let json = try! JSONDecoder().decode(Root.self, from:data)
+//                flag1_lat = json.resources[0].flagcoords.lat
+//                flag1_long = json.resources[0].flagcoords.long
+//                print(json.resources[0].flagcoords)
+//                print(flag1_lat + flag1_long)
+//
+//            } catch{
+//                print(error)
+//            }
+//        }s
+        
+        let group = DispatchGroup()
+        group.enter()
+        let task = URLSession.shared.dataTask(with: urlRequest, completionHandler:{
+            (data: Data!, response: URLResponse!, error: Error!) -> Void in
+            print("enterning url session")
+//            group.enter()
+            let json = try! JSONDecoder().decode(Root.self, from:data)
+            flag1_lat = json.resources[0].flagcoords.lat
+            flag1_long = json.resources[0].flagcoords.long
+
+            print(flag1_lat)
+            print(flag1_long)
+            
+            group.leave()
+            print("leaving url session")
+
+        })
         task.resume()
         
-//        let path = UIBezierPath()
-//        path.move(to: CGPoint(x: 0.0, y: 0.0))
-//        // Create a line between the starting point and the bottom-left side of the view.
-//        path.addLine(to: CGPoint(x: 0.0, y: self.frame.size.height))
-//
-//        // Create the bottom line (bottom-left to bottom-right).
-//        path.addLine(to: CGPoint(x: self.frame.size.width, y: self.frame.size.height))
-//
-//        // Create the vertical line from the bottom-right to the top-right side.
-//        path.addLine(to: CGPoint(x: self.frame.size.width, y: 0.0))
-     
-        // Close the path. This will create the last line automatically.
-//        path.close()
+        group.wait()
         
+        print(flag1_lat)
+        print(flag1_long)
         var nodes: [LocationAnnotationNode] = []
-
-        let spaceNeedle = buildNode(latitude: 47.6205, longitude: -122.3493, altitude: 225, imageName: "pin")
-        nodes.append(spaceNeedle)
-
-        let empireStateBuilding = buildNode(latitude: 40.7484, longitude: -73.9857, altitude: 14.3, imageName: "pin")
-        nodes.append(empireStateBuilding)
-
-        let canaryWharf = buildNode(latitude: 51.504607, longitude: -0.019592, altitude: 236, imageName: "pin")
-        nodes.append(canaryWharf)
-
-        let applePark = buildViewNode(latitude: 37.334807, longitude: -122.009076, altitude: 100, text: "Apple Park")
-        nodes.append(applePark)
-
-        let theAlamo = buildViewNode(latitude: 29.4259671, longitude: -98.4861419, altitude: 300, text: "The Alamo")
-        nodes.append(theAlamo)
 
         let pikesPeakLayer = CATextLayer()
         pikesPeakLayer.frame = CGRect(x: 0, y: 0, width: 200, height: 40)
@@ -336,17 +330,18 @@ extension POIViewController {
         pikesPeakLayer.foregroundColor = UIColor.black.cgColor
         pikesPeakLayer.backgroundColor = UIColor.white.cgColor
 
-        // This demo uses a simple periodic timer to showcase dynamic text in a node.  In your implementation,
-        // the view's content will probably be changed as the result of a network fetch or some other asynchronous event.
-
         _ = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
-            pikesPeakLayer.string = "Pike's Peak\n" + Date().description
+            let location1 = self.sceneLocationView.sceneLocationManager.currentLocation
+            let location2 = CLLocation(latitude: flag1_lat, longitude: flag1_long)
+            let distanceInMeters = location1!.distance(from:location2)
+            pikesPeakLayer.string = String(format: "Sand Piper's Golf Course\nDistance: %.1fm", distanceInMeters)
         }
 
-        let pikesPeak = buildLayerNode(latitude: 38.8405322, longitude: -105.0442048, altitude: 4705, layer: pikesPeakLayer)
+        let pikesPeak = buildLayerNode(latitude: flag1_lat, longitude: flag1_long, altitude: 13, layer: pikesPeakLayer)
         nodes.append(pikesPeak)
 
         return nodes
+
     }
 
     @objc

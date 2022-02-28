@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="15505" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="fpJ-2M-iZ2">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="19529" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="fpJ-2M-iZ2">
     <device id="retina6_1" orientation="portrait" appearance="dark"/>
     <dependencies>
         <deployment version="4352" identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15510"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="19519"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -57,6 +57,7 @@
                                 </userDefinedRuntimeAttributes>
                             </label>
                         </subviews>
+                        <viewLayoutGuide key="safeArea" id="sEp-9D-JQy"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
                             <constraint firstItem="nn6-MP-ups" firstAttribute="leading" secondItem="sEp-9D-JQy" secondAttribute="leading" constant="16" id="12D-5A-4sL"/>
@@ -74,7 +75,6 @@
                             <constraint firstItem="sEp-9D-JQy" firstAttribute="trailing" secondItem="Kl5-Tp-V6Z" secondAttribute="trailing" id="vaL-m1-mwa"/>
                             <constraint firstItem="Kl5-Tp-V6Z" firstAttribute="bottom" secondItem="gCK-bC-QrS" secondAttribute="bottom" id="xrS-96-2ok"/>
                         </constraints>
-                        <viewLayoutGuide key="safeArea" id="sEp-9D-JQy"/>
                     </view>
                     <navigationItem key="navigationItem" id="Dl0-XH-Cbc"/>
                     <connections>
@@ -99,7 +99,7 @@
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Show Map" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="NDg-ci-DzR">
                                 <rect key="frame" x="16" y="109" width="325" height="21"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                <color key="textColor" systemColor="darkTextColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="7qp-wG-0Ub">
@@ -117,13 +117,13 @@
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Points of Interest" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Nuj-Kz-ghg">
                                 <rect key="frame" x="16" y="148" width="325" height="21"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                <color key="textColor" systemColor="darkTextColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Route (directions)" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="JbY-Nl-qab">
                                 <rect key="frame" x="16" y="187" width="325" height="21"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                <color key="textColor" systemColor="darkTextColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="XVU-Rc-O9H">
@@ -133,7 +133,7 @@
                                 </connections>
                             </switch>
                             <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Enter Address" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="S7R-2e-tuL">
-                                <rect key="frame" x="16" y="221" width="303" height="40"/>
+                                <rect key="frame" x="16" y="221" width="304" height="40"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="40" id="XmU-Rs-phv"/>
                                 </constraints>
@@ -141,7 +141,7 @@
                                 <textInputTraits key="textInputTraits"/>
                             </textField>
                             <button opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Rqz-kd-Muk">
-                                <rect key="frame" x="327" y="222" width="71" height="38"/>
+                                <rect key="frame" x="328" y="222" width="70" height="38"/>
                                 <inset key="contentEdgeInsets" minX="8" minY="8" maxX="8" maxY="8"/>
                                 <state key="normal" title="search">
                                     <color key="titleColor" red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
@@ -163,14 +163,14 @@
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <prototypes>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="OpenARCell" rowHeight="60" id="Oox-ib-jtd" customClass="OpenARCell" customModule="ARKit_CoreLocation" customModuleProvider="target">
-                                        <rect key="frame" x="0.0" y="28" width="382" height="60"/>
+                                        <rect key="frame" x="0.0" y="44.5" width="382" height="60"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="Oox-ib-jtd" id="WUk-C5-po7">
                                             <rect key="frame" x="0.0" y="0.0" width="382" height="60"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
                                                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ue9-Jp-EaX">
-                                                    <rect key="frame" x="76" y="15" width="230" height="30"/>
+                                                    <rect key="frame" x="76.5" y="15" width="229" height="30"/>
                                                     <inset key="contentEdgeInsets" minX="8" minY="8" maxX="8" maxY="8"/>
                                                     <state key="normal" title="Show AR Points of Interest">
                                                         <color key="titleColor" red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
@@ -199,7 +199,7 @@
                                         </connections>
                                     </tableViewCell>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="LocationCell" rowHeight="60" id="lzl-z0-cNA" customClass="LocationCell" customModule="ARKit_CoreLocation" customModuleProvider="target">
-                                        <rect key="frame" x="0.0" y="88" width="382" height="60"/>
+                                        <rect key="frame" x="0.0" y="104.5" width="382" height="60"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="lzl-z0-cNA" id="8MR-Zm-UHC">
                                             <rect key="frame" x="0.0" y="0.0" width="382" height="60"/>
@@ -244,6 +244,7 @@
                                 <color key="color" red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                             </activityIndicatorView>
                         </subviews>
+                        <viewLayoutGuide key="safeArea" id="XOi-nj-5TP"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
                             <constraint firstItem="S7R-2e-tuL" firstAttribute="top" secondItem="XVU-Rc-O9H" secondAttribute="bottom" constant="8" id="0tE-Tz-p7S"/>
@@ -273,7 +274,6 @@
                             <constraint firstItem="S7R-2e-tuL" firstAttribute="leading" secondItem="XOi-nj-5TP" secondAttribute="leading" constant="16" id="ufq-Au-hhY"/>
                             <constraint firstItem="7qp-wG-0Ub" firstAttribute="top" secondItem="XOi-nj-5TP" secondAttribute="top" constant="16" id="ytg-Xc-FTk"/>
                         </constraints>
-                        <viewLayoutGuide key="safeArea" id="XOi-nj-5TP"/>
                     </view>
                     <navigationItem key="navigationItem" id="oK9-y5-ld2"/>
                     <connections>
@@ -308,4 +308,9 @@
             <point key="canvasLocation" x="-639.20000000000005" y="-43.628185907046479"/>
         </scene>
     </scenes>
+    <resources>
+        <systemColor name="darkTextColor">
+            <color white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
+    </resources>
 </document>
