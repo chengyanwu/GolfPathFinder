@@ -91,7 +91,7 @@
 		36A77FBB22BFD9B000AAE2A5 /* readme.jp.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = readme.jp.md; sourceTree = "<group>"; };
 		36B3F34A221D077700745096 /* SettingsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewController.swift; sourceTree = "<group>"; };
 		36D99E3122BFEA2E00D09952 /* POIViewController+ARSCNViewDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "POIViewController+ARSCNViewDelegate.swift"; sourceTree = "<group>"; };
-		49A3FBD81F09988100AA59C8 /* ARKit+CoreLocation.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "ARKit+CoreLocation.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		49A3FBD81F09988100AA59C8 /* ARGolfPathFinder.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ARGolfPathFinder.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		49A3FBDB1F09988100AA59C8 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		49A3FBDF1F09988100AA59C8 /* POIViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = POIViewController.swift; sourceTree = "<group>"; };
 		49A3FBE41F09988100AA59C8 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -238,7 +238,7 @@
 		49A3FBD91F09988100AA59C8 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				49A3FBD81F09988100AA59C8 /* ARKit+CoreLocation.app */,
+				49A3FBD81F09988100AA59C8 /* ARGolfPathFinder.app */,
 				932EF22A20BE7E6E0052210C /* ARCLTests.xctest */,
 				2B0FADB623513B33005C1A52 /* Node Demos.app */,
 				2B0FADCB23513B35005C1A52 /* Node DemosTests.xctest */,
@@ -369,7 +369,7 @@
 				76AD004227C492D000133BFE /* CryptoSwift */,
 			);
 			productName = "ARKit+CoreLocation";
-			productReference = 49A3FBD81F09988100AA59C8 /* ARKit+CoreLocation.app */;
+			productReference = 49A3FBD81F09988100AA59C8 /* ARGolfPathFinder.app */;
 			productType = "com.apple.product-type.application";
 		};
 		932EF22920BE7E6E0052210C /* ARCLTests */ = {
@@ -953,11 +953,12 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.2;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
 			name = Debug;
@@ -1006,7 +1007,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.2;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
 				SWIFT_COMPILATION_MODE = wholemodule;
@@ -1027,7 +1028,7 @@
 					"@executable_path/Frameworks",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com.maaap.ProjectDent.ARKit-CoreLocation-ian";
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = ARGolfPathFinder;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -1045,7 +1046,7 @@
 					"@executable_path/Frameworks",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com.maaap.ProjectDent.ARKit-CoreLocation-ian";
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = ARGolfPathFinder;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
