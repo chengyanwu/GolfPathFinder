@@ -15,7 +15,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "49A3FBD71F09988100AA59C8"
-               BuildableName = "ARKit+CoreLocation.app"
+               BuildableName = "ARGolfPathFinder.app"
                BlueprintName = "ARKit+CoreLocation"
                ReferencedContainer = "container:ARKit+CoreLocation.xcodeproj">
             </BuildableReference>
@@ -32,7 +32,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "49A3FBD71F09988100AA59C8"
-            BuildableName = "ARKit+CoreLocation.app"
+            BuildableName = "ARGolfPathFinder.app"
             BlueprintName = "ARKit+CoreLocation"
             ReferencedContainer = "container:ARKit+CoreLocation.xcodeproj">
          </BuildableReference>
@@ -65,7 +65,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "49A3FBD71F09988100AA59C8"
-            BuildableName = "ARKit+CoreLocation.app"
+            BuildableName = "ARGolfPathFinder.app"
             BlueprintName = "ARKit+CoreLocation"
             ReferencedContainer = "container:ARKit+CoreLocation.xcodeproj">
          </BuildableReference>
@@ -82,7 +82,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "49A3FBD71F09988100AA59C8"
-            BuildableName = "ARKit+CoreLocation.app"
+            BuildableName = "ARGolfPathFinder.app"
             BlueprintName = "ARKit+CoreLocation"
             ReferencedContainer = "container:ARKit+CoreLocation.xcodeproj">
          </BuildableReference>

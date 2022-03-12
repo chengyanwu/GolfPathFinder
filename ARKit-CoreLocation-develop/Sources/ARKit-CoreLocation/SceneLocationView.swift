@@ -193,7 +193,7 @@ public extension SceneLocationView {
         case .worldTracking:
             let configuration = ARWorldTrackingConfiguration()
             configuration.planeDetection = .horizontal
-            configuration.worldAlignment = orientToTrueNorth ? .gravityAndHeading : .gravity
+            configuration.worldAlignment = orientToTrueNorth ? .gravityAndHeading : .gravityAndHeading
             session.run(configuration)
 
         case .orientationTracking:

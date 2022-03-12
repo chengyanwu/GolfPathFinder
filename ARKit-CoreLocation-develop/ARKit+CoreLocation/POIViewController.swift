@@ -12,6 +12,7 @@ import MapKit
 import SceneKit
 import UIKit
 import CryptoSwift
+import CoreLocation
 //import AwsSign
 
 @available(iOS 11.0, *)
@@ -41,6 +42,24 @@ class POIViewController: UIViewController {
             mapView.isHidden = !showMap
         }
     }
+    
+    var heading: Double! = 0.0
+    var distance: Float! = 0.0 {
+        didSet {
+            setStatusText()
+        }
+    }
+    var status: String! {
+        didSet {
+            setStatusText()
+        }
+    }
+    
+    var modelNode:SCNNode!
+    let rooteNodeName = "Object-1"
+    var originalTransform:SCNMatrix4!
+    
+    var userLocation:CLLocation!
 
     /// Whether to display some debugging data
     /// This currently displays the coordinate of the best location estimate
@@ -54,6 +73,12 @@ class POIViewController: UIViewController {
         return UIStoryboard(name: "Main", bundle: nil)
             .instantiateViewController(withIdentifier: "ARCLViewController") as! POIViewController
         // swiftlint:disable:previous force_cast
+    }
+    
+    func setStatusText() {
+        var text = "Status: \(status!)\n"
+        text += "Distance: \(String(format: "%.2f m", distance))"
+//        statusTextView.text = text
     }
 
     override func viewDidLoad() {
@@ -258,7 +283,190 @@ extension POIViewController {
 //        let name:String
 //        let
 //    }
+    
+    func calculateHeading(curLocation: CLLocation, targetLocation: CLLocation) -> Float {
+        let curLat = curLocation.coordinate.latitude
+        let curLon = curLocation.coordinate.longitude
+        let tarLat = targetLocation.coordinate.latitude
+        let tarLon = targetLocation.coordinate.longitude
+        
+        let X = cos(tarLat) * sin(tarLon - curLon)
+        let Y = cos(curLat) * sin(tarLat) - sin(curLat) * cos(tarLat) * cos(tarLon - curLon)
+        
+        let bearing = Float(atan2(X, Y)).toDegrees()
+        
+        return bearing
+    }
+    
+    func updateArcLocation(latitude: CLLocationDegrees, longitude: CLLocationDegrees,
+                                altitude: CLLocationDistance) {
+        let location = CLLocation(latitude: latitude, longitude: longitude)
+        
 
+        let curLocation = self.sceneLocationView.sceneLocationManager.currentLocation
+                
+        
+        print("---------------")
+        
+        var distance = curLocation?.distance(from: location)
+        
+        print(calculateHeading(curLocation: curLocation!, targetLocation: location))
+    
+        let bearing = calculateHeading(curLocation: curLocation!, targetLocation: location)
+        self.userLocation = curLocation
+        
+        if self.modelNode == nil {
+//            let modelScene = SCNScene(named: "art.scnassets/arrow.dae")!
+//            self.modelNode = modelScene.rootNode.childNode(withName: rooteNodeName, recursively: true)
+//            let (minBox, maxBox) = self.modelNode.boundingBox
+//            self.modelNode.pivot = SCNMatrix4MakeTranslation(0, (maxBox.y - minBox.y) / 2, 0)
+////
+//            let rotation = SCNMatrix4MakeRotation(Float(bearing + 90).toRadians(), 0, 1, 0)
+//            self.modelNode.transform = SCNMatrix4Mult(self.modelNode.transform, rotation)
+//
+//            self.modelNode.scale = SCNVector3(x: 0.001, y: 0.001, z: 0.001)
+//            self.originalTransform = self.modelNode.transform
+//
+////            positionModel(location)
+//
+//            sceneLocationView.scene.rootNode.addChildNode(self.modelNode)
+//            distance = 10.0
+
+            let arcDist = min(distance!, 400)
+            
+            let arcStartX = 0.5
+            let arcStartY = -0.5
+            let controlHeight = (arcDist / 2) * tan(35)
+            
+            
+            let path = UIBezierPath()
+            path.move(to: CGPoint(x: arcStartX, y: arcStartY))
+            path.addQuadCurve(to: CGPoint(x: arcStartX + arcDist, y: arcStartY), controlPoint: CGPoint(x: arcStartX + (arcDist / 2), y: controlHeight))
+            path.addLine(to: CGPoint(x: arcStartX + arcDist - 0.01, y: arcStartY))
+            path.addQuadCurve(to: CGPoint(x: arcStartX + 0.01, y: arcStartY), controlPoint: CGPoint(x: arcStartX + (arcDist / 2), y: controlHeight - 0.02))
+            path.close()
+
+            path.flatness = 0.0003
+
+            let shape = SCNShape(path: path, extrusionDepth: 0.000438596 * arcDist + 0.0245614)
+            let color = #colorLiteral(red: 1, green: 0.08143679053, blue: 0.3513627648, alpha: 0.8459555697)
+            shape.firstMaterial?.diffuse.contents = color
+    //        shape.chamferRadius = 0.1
+
+
+            let arcNode = SCNNode(geometry: shape)
+
+//            arcNode.position.z = -1
+//            arcNode.position.y = 0.5
+//            arcNode.position.x = 0.5
+//            arcNode.pivot = SCNMatrix4MakeTranslation(1, 0.2, 0)
+
+            self.modelNode = arcNode
+
+            let (minBox, maxBox) = self.modelNode.boundingBox
+//            self.modelNode.pivot = SCNMatrix4MakeTranslation(0, (maxBox.y - minBox.y) / 2, 0)
+//            arcNode.eulerAngles.y = (.pi/2)
+
+            let rotation = SCNMatrix4MakeRotation(Float(bearing + 90).toRadians(), 0, 1, 0)
+            self.modelNode.transform = SCNMatrix4Mult(self.modelNode.transform, rotation)
+
+            self.originalTransform = self.modelNode.transform
+
+//            positionModel(location)
+
+            sceneLocationView.scene.rootNode.addChildNode(arcNode)
+            
+        } else {
+            SCNTransaction.begin()
+            SCNTransaction.animationDuration = 1.0
+            
+//            positionModel(location)
+            
+            SCNTransaction.commit()
+        }
+        
+        
+    }
+    
+    func positionModel(_ location: CLLocation) {
+        // Rotate node
+        
+        self.modelNode.transform = rotateNode(Float(-1 * (self.heading - 180).toRadians()), self.originalTransform)
+            
+        // Translate node
+        self.modelNode.position = translateNode(location)
+            
+        // Scale node
+        self.modelNode.scale = scaleNode(location)
+    }
+    
+    func rotateNode(_ angleInRadians: Float, _ transform: SCNMatrix4) -> SCNMatrix4 {
+        let rotation = SCNMatrix4MakeRotation(angleInRadians, 0, 1, 0)
+        return SCNMatrix4Mult(transform, rotation)
+    }
+
+    func scaleNode (_ location: CLLocation) -> SCNVector3 {
+        let scale = min( max( Float(1000/distance), 0.0005 ), 0.001 )
+        return SCNVector3(x: scale, y: scale, z: scale)
+    }
+    
+    func translateNode (_ location: CLLocation) -> SCNVector3 {
+        let locationTransform =
+            transformMatrix(matrix_identity_float4x4, userLocation, location)
+        return positionFromTransform(locationTransform)
+    }
+    
+    func positionFromTransform(_ transform: simd_float4x4) -> SCNVector3 {
+        return SCNVector3Make(
+            transform.columns.3.x, transform.columns.3.y, transform.columns.3.z
+        )
+    }
+
+    func transformMatrix(_ matrix: simd_float4x4, _ originLocation: CLLocation, _ driverLocation: CLLocation) -> simd_float4x4 {
+        let bearing = bearingBetweenLocations(userLocation, driverLocation)
+        let rotationMatrix = rotateAroundY(matrix_identity_float4x4, Float(bearing))
+            
+        let position = vector_float4(0.0, 0.0, -distance, 0.0)
+        let translationMatrix = getTranslationMatrix(matrix_identity_float4x4, position)
+            
+        let transformMatrix = simd_mul(rotationMatrix, translationMatrix)
+            
+        return simd_mul(matrix, transformMatrix)
+    }
+        
+    func getTranslationMatrix(_ matrix: simd_float4x4, _ translation : vector_float4) -> simd_float4x4 {
+        var matrix = matrix
+        matrix.columns.3 = translation
+        return matrix
+    }
+        
+    func rotateAroundY(_ matrix: simd_float4x4, _ degrees: Float) -> simd_float4x4 {
+        var matrix = matrix
+        
+        matrix.columns.0.x = cos(degrees)
+        matrix.columns.0.z = -sin(degrees)
+            
+        matrix.columns.2.x = sin(degrees)
+        matrix.columns.2.z = cos(degrees)
+        return matrix.inverse
+    }
+        
+    func bearingBetweenLocations(_ originLocation: CLLocation, _ driverLocation: CLLocation) -> Double {
+        let lat1 = originLocation.coordinate.latitude.toRadians()
+        let lon1 = originLocation.coordinate.longitude.toRadians()
+            
+        let lat2 = driverLocation.coordinate.latitude.toRadians()
+        let lon2 = driverLocation.coordinate.longitude.toRadians()
+            
+        let longitudeDiff = lon2 - lon1
+            
+        let y = sin(longitudeDiff) * cos(lat2);
+        let x = cos(lat1) * sin(lat2) - sin(lat1) * cos(lat2) * cos(longitudeDiff);
+            
+        return atan2(y, x)
+    }
+    
+    
     /// Builds the location annotations for a few random objects, scattered across the country
     ///
     /// - Returns: an array of annotation nodes.
@@ -311,10 +519,6 @@ extension POIViewController {
 //            flag4_lat = json.resources[3].flagcoords.lat
 //            flag4_long = json.resources[3].flagcoords.long
             
-
-            print(flag1_lat)
-            print(flag1_long)
-            
             group.leave()
             print("leaving url session")
 
@@ -323,8 +527,6 @@ extension POIViewController {
         
         group.wait()
         
-        print(flag1_lat)
-        print(flag1_long)
         var nodes: [LocationAnnotationNode] = []
 
         let hole1Layer = CATextLayer()
@@ -344,6 +546,8 @@ extension POIViewController {
 
         let hole1 = buildLayerNode(latitude: flag1_lat, longitude: flag1_long, altitude: 13, layer: hole1Layer)
         nodes.append(hole1)
+            
+        
         
         let hole2Layer = CATextLayer()
         hole2Layer.frame = CGRect(x: 0, y: 0, width: 200, height: 40)
@@ -362,6 +566,7 @@ extension POIViewController {
 
         let hole2 = buildLayerNode(latitude: flag2_lat, longitude: flag2_long, altitude: 13, layer: hole2Layer)
         nodes.append(hole2)
+
         
         let hole3Layer = CATextLayer()
         hole3Layer.frame = CGRect(x: 0, y: 0, width: 200, height: 40)
@@ -401,6 +606,9 @@ extension POIViewController {
         
         let applePark = buildViewNode(latitude: 37.334807, longitude: -122.009076, altitude: 100, text: "Apple Park")
         nodes.append(applePark)
+        
+        updateArcLocation(latitude: flag3_lat, longitude: flag3_long, altitude: 13)
+
 
         return nodes
 
