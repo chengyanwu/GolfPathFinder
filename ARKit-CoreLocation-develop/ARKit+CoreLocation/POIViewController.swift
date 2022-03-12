@@ -12,6 +12,7 @@ import MapKit
 import SceneKit
 import UIKit
 import CryptoSwift
+import CoreLocation
 //import AwsSign
 
 @available(iOS 11.0, *)
@@ -41,6 +42,7 @@ class POIViewController: UIViewController {
             mapView.isHidden = !showMap
         }
     }
+    
 
     /// Whether to display some debugging data
     /// This currently displays the coordinate of the best location estimate
@@ -49,6 +51,24 @@ class POIViewController: UIViewController {
 
     let adjustNorthByTappingSidesOfScreen = false
     let addNodeByTappingScreen = true
+    
+    var heading: Double! = 0.0
+    var distance: Float! = 0.0 {
+        didSet {
+//            setStatusText()
+        }
+    }
+    var status: String! {
+        didSet {
+//            setStatusText()
+        }
+    }
+    
+    var modelNode:SCNNode!
+    let rooteNodeName = "Object-1"
+    var originalTransform:SCNMatrix4!
+    
+    var userLocation:CLLocation!
 
     class func loadFromStoryboard() -> POIViewController {
         return UIStoryboard(name: "Main", bundle: nil)
@@ -269,36 +289,38 @@ extension POIViewController {
         let secret_key = "WvfeFs+wB1Veh91qv+hMdoEGeAqpckodelfR+iHd"
         
 //        let urlString = "https://api.golfbert.com/v1/courses"
-        let urlString = "https://api.golfbert.com/v1/courses/1593/holes"
-        var urlRequest = URLRequest(url:URL(string: urlString)!)
+        let urlString_flag = "https://api.golfbert.com/v1/courses/1593/holes"
+        let urlString_polygon = "https://api.golfbert.com/v1/holes/67111/polygons"
         
+        var urlRequest = URLRequest(url:URL(string: urlString_flag)!)
         urlRequest.httpMethod = "GET"
         urlRequest.addValue(API_token, forHTTPHeaderField: "x-api-key")
         urlRequest.addValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
         
         try! urlRequest.sign(accessKeyId: access_key, secretAccessKey: secret_key)
-//        var flag1_lat: Double = 34.42897256495137
-//        var flag1_long: Double = -119.90183651447296
+        
         var flag1_lat: Double = 0
         var flag1_long: Double = 0
         
-        var flag2_lat: Double = 34.423493
-        var flag2_long: Double = -119.641111
+        var flag2_lat: Double = 34.413367
+        var flag2_long: Double = -119.844813
         
-        var flag3_lat: Double = 33.998989
-        var flag3_long: Double = -119.857081
+        var flag3_lat: Double = 34.404868
+        var flag3_long: Double = -119.844519
         
-        var flag4_lat: Double = 37.116470
-        var flag4_long: Double = -115.452546
+        var flag4_lat: Double = 34.428259
+        var flag4_long: Double = -119.850368
+        
+        var bunker_lat: Double = 34.395313
+        var bunker_long: Double = -119.606658
         
         let group = DispatchGroup()
         group.enter()
-        let task = URLSession.shared.dataTask(with: urlRequest, completionHandler:{
+        let task1 = URLSession.shared.dataTask(with: urlRequest, completionHandler:{
             (data: Data!, response: URLResponse!, error: Error!) -> Void in
-            print("enterning url session")
+            print("enterning url session 1")
 //            group.enter()
-            let json = try! JSONDecoder().decode(Root.self, from:data)
-            
+            let json = try! JSONDecoder().decode(JSON_Flag.self, from:data)
             flag1_lat = json.resources[0].flagcoords.lat
             flag1_long = json.resources[0].flagcoords.long
             
@@ -315,16 +337,55 @@ extension POIViewController {
             print(flag1_lat)
             print(flag1_long)
             
+            
+            print("leaving url session 1")
             group.leave()
-            print("leaving url session")
 
-        })
-        task.resume()
+        }).resume()
+        
+        urlRequest.url = URL(string: urlString_polygon)
+        try! urlRequest.sign(accessKeyId: access_key, secretAccessKey: secret_key)
+        print(urlRequest)
+        
+        group.enter()
+        var urlRequest2 = URLRequest(url:URL(string: urlString_polygon)!)
+        urlRequest2.httpMethod = "GET"
+        urlRequest2.addValue(API_token, forHTTPHeaderField: "x-api-key")
+        urlRequest2.addValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
+        
+        try! urlRequest2.sign(accessKeyId: access_key, secretAccessKey: secret_key)
+        let task2 = URLSession.shared.dataTask(with: urlRequest2, completionHandler:{
+            (data: Data!, response: URLResponse!, error: Error!) -> Void in
+            print("enterning url session 2")
+            let json = try! JSONDecoder().decode(JSONPoly.self, from:data)
+            
+            var lat = 0.0
+            var long = 0.0
+            var count = 0.0
+            for poly in json.resources[2].polygon{
+                lat += poly.lat
+                long += poly.long
+                count += 1
+            }
+            lat = lat / count
+            long = long / count
+
+            bunker_lat = lat
+            bunker_long = long
+
+            print(bunker_lat)
+            print(bunker_long)
+            
+            group.leave()
+            print("leaving url session 2")
+
+        }).resume()
         
         group.wait()
-        
+        print("All url session ended")
         print(flag1_lat)
         print(flag1_long)
+        
         var nodes: [LocationAnnotationNode] = []
 
         let hole1Layer = CATextLayer()
@@ -339,10 +400,12 @@ extension POIViewController {
             let location1 = self.sceneLocationView.sceneLocationManager.currentLocation
             let location2 = CLLocation(latitude: flag1_lat, longitude: flag1_long)
             let distanceInMeters = location1!.distance(from:location2)
-            hole1Layer.string = String(format: "Hole 1\nDistance: %.1fm", distanceInMeters)
+            hole1Layer.string = String(format: "Flag 1\nDistance: %.1fm", distanceInMeters)
         }
 
-        let hole1 = buildLayerNode(latitude: flag1_lat, longitude: flag1_long, altitude: 13, layer: hole1Layer)
+        var hole1 = buildLayerNode(latitude: flag1_lat, longitude: flag1_long, altitude: 20, layer: hole1Layer)
+        nodes.append(hole1)
+        hole1 = buildNode(latitude: flag1_lat, longitude: flag1_long, altitude: 60, imageName: "flag1")
         nodes.append(hole1)
         
         let hole2Layer = CATextLayer()
@@ -357,11 +420,15 @@ extension POIViewController {
             let location1 = self.sceneLocationView.sceneLocationManager.currentLocation
             let location2 = CLLocation(latitude: flag2_lat, longitude: flag2_long)
             let distanceInMeters = location1!.distance(from:location2)
-            hole2Layer.string = String(format: "Hole 2\nDistance: %.1fm", distanceInMeters)
+            hole2Layer.string = String(format: "Flag 2\nDistance: %.1fm", distanceInMeters)
         }
 
-        let hole2 = buildLayerNode(latitude: flag2_lat, longitude: flag2_long, altitude: 13, layer: hole2Layer)
+        var hole2 = buildLayerNode(latitude: flag2_lat, longitude: flag2_long, altitude: 0, layer: hole2Layer)
         nodes.append(hole2)
+        hole2 = buildNode(latitude: flag2_lat, longitude: flag2_long, altitude: 40, imageName: "flag2")
+        nodes.append(hole2)
+        
+//        updateArcLocation(latitude: flag2_lat, longitude: flag2_long, altitude: 60)
         
         let hole3Layer = CATextLayer()
         hole3Layer.frame = CGRect(x: 0, y: 0, width: 200, height: 40)
@@ -375,11 +442,14 @@ extension POIViewController {
             let location1 = self.sceneLocationView.sceneLocationManager.currentLocation
             let location2 = CLLocation(latitude: flag3_lat, longitude: flag3_long)
             let distanceInMeters = location1!.distance(from:location2)
-            hole3Layer.string = String(format: "Hole 3\nDistance: %.1fm", distanceInMeters)
+            hole3Layer.string = String(format: "Flag3\nDistance: %.1fm", distanceInMeters)
         }
 
-        let hole3 = buildLayerNode(latitude: flag3_lat, longitude: flag3_long, altitude: 13, layer: hole3Layer)
+        var hole3 = buildLayerNode(latitude: flag3_lat, longitude: flag3_long, altitude: 20, layer: hole3Layer)
         nodes.append(hole3)
+        hole3 = buildNode(latitude: flag3_lat, longitude: flag3_long, altitude: 60, imageName: "flag3")
+        nodes.append(hole3)
+        updateArcLocation(latitude: flag3_lat, longitude: flag3_long, altitude: 60)
         
         let hole4Layer = CATextLayer()
         hole4Layer.frame = CGRect(x: 0, y: 0, width: 200, height: 40)
@@ -393,14 +463,13 @@ extension POIViewController {
             let location1 = self.sceneLocationView.sceneLocationManager.currentLocation
             let location2 = CLLocation(latitude: flag4_lat, longitude: flag4_long)
             let distanceInMeters = location1!.distance(from:location2)
-            hole4Layer.string = String(format: "Hole 4\nDistance: %.1fm", distanceInMeters)
+            hole4Layer.string = String(format: "Bunker\nDistance: %.1fm", distanceInMeters)
         }
-
-        let hole4 = buildLayerNode(latitude: flag4_lat, longitude: flag4_long, altitude: 13, layer: hole4Layer)
-        nodes.append(hole4)
         
-        let applePark = buildViewNode(latitude: 37.334807, longitude: -122.009076, altitude: 100, text: "Apple Park")
-        nodes.append(applePark)
+        var hole4 = buildLayerNode(latitude: bunker_lat, longitude: bunker_long, altitude: 20, layer: hole4Layer)
+        nodes.append(hole4)
+        hole4 = buildNode(latitude: bunker_lat, longitude: bunker_long, altitude: 60, imageName: "bunker")
+        nodes.append(hole4)
 
         return nodes
 
@@ -500,6 +569,103 @@ extension POIViewController {
         let coordinate = CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
         let location = CLLocation(coordinate: coordinate, altitude: altitude)
         return LocationAnnotationNode(location: location, layer: layer)
+    }
+    
+    func calculateHeading(curLocation: CLLocation, targetLocation: CLLocation) -> Float {
+        let curLat = curLocation.coordinate.latitude
+        let curLon = curLocation.coordinate.longitude
+        let tarLat = targetLocation.coordinate.latitude
+        let tarLon = targetLocation.coordinate.longitude
+        
+        let X = cos(tarLat) * sin(tarLon - curLon)
+        let Y = cos(curLat) * sin(tarLat) - sin(curLat) * cos(tarLat) * cos(tarLon - curLon)
+        
+        let bearing = Float(atan2(X, Y)).toDegrees()
+        
+        return bearing
+    }
+        
+    func updateArcLocation(latitude: CLLocationDegrees, longitude: CLLocationDegrees,
+                                altitude: CLLocationDistance) {
+        let location = CLLocation(latitude: latitude, longitude: longitude)
+        
+
+        let curLocation = self.sceneLocationView.sceneLocationManager.currentLocation
+                
+        
+        print("---------------")
+        
+        let distance = curLocation?.distance(from: location)
+        
+        print(calculateHeading(curLocation: curLocation!, targetLocation: location))
+    
+        let bearing = calculateHeading(curLocation: curLocation!, targetLocation: location)
+        self.userLocation = curLocation
+        
+        if self.modelNode == nil {
+//            let modelScene = SCNScene(named: "art.scnassets/arrow.dae")!
+//            self.modelNode = modelScene.rootNode.childNode(withName: rooteNodeName, recursively: true)
+//            let (minBox, maxBox) = self.modelNode.boundingBox
+//            self.modelNode.pivot = SCNMatrix4MakeTranslation(0, (maxBox.y - minBox.y) / 2, 0)
+////
+//            let rotation = SCNMatrix4MakeRotation(Float(bearing + 90).toRadians(), 0, 1, 0)
+//            self.modelNode.transform = SCNMatrix4Mult(self.modelNode.transform, rotation)
+//
+//            self.modelNode.scale = SCNVector3(x: 0.001, y: 0.001, z: 0.001)
+//            self.originalTransform = self.modelNode.transform
+//
+////            positionModel(location)
+//
+//            sceneLocationView.scene.rootNode.addChildNode(self.modelNode)
+//            distance = 10.0
+            let arcDist = min(distance!, 400)
+            
+            let arcStartX = 0.5
+            let arcStartY = -0.5
+            let controlHeight = (arcDist / 2) * tan(35)
+            
+            
+            let path = UIBezierPath()
+            path.move(to: CGPoint(x: arcStartX, y: arcStartY))
+            path.addQuadCurve(to: CGPoint(x: arcStartX + arcDist, y: arcStartY), controlPoint: CGPoint(x: arcStartX + (arcDist / 2), y: controlHeight))
+            path.addLine(to: CGPoint(x: arcStartX + arcDist - 0.01, y: arcStartY))
+            path.addQuadCurve(to: CGPoint(x: arcStartX + 0.01, y: arcStartY), controlPoint: CGPoint(x: arcStartX + (arcDist / 2), y: controlHeight - 0.02))
+            path.close()
+
+            path.flatness = 0.0003
+
+            let shape = SCNShape(path: path, extrusionDepth: 0.000438596 * arcDist + 0.0245614)
+            let color = #colorLiteral(red: 1, green: 0.08143679053, blue: 0.3513627648, alpha: 0.8459555697)
+            shape.firstMaterial?.diffuse.contents = color
+    //        shape.chamferRadius = 0.1
+
+            let arcNode = SCNNode(geometry: shape)
+
+//            arcNode.position.z = -1
+//            arcNode.position.y = 0.5
+//            arcNode.position.x = 0.5
+//            arcNode.pivot = SCNMatrix4MakeTranslation(1, 0.2, 0)
+            self.modelNode = arcNode
+
+//            arcNode.eulerAngles.y = (.pi/2)
+            let rotation = SCNMatrix4MakeRotation(Float(bearing + 90).toRadians(), 0, 1, 0)
+            self.modelNode.transform = SCNMatrix4Mult(self.modelNode.transform, rotation)
+
+            self.originalTransform = self.modelNode.transform
+
+//            positionModel(location)
+            sceneLocationView.scene.rootNode.addChildNode(arcNode)
+            
+        } else {
+            SCNTransaction.begin()
+            SCNTransaction.animationDuration = 1.0
+            
+//            positionModel(location)
+            
+            SCNTransaction.commit()
+        }
+        
+        
     }
 
 }

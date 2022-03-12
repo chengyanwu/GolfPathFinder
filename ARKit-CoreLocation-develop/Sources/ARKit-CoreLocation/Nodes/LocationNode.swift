@@ -21,6 +21,7 @@ open class AnnotationNode: SCNNode {
         super.init()
         self.view = view
         self.image = image
+//        self.image = UIImage(named: "flag1")
         self.layer = layer
     }
 
@@ -83,8 +84,9 @@ open class LocationNode: SCNNode {
     public var ignoreAltitude = false
 
     /// The scheme to use for scaling
+//    public var scalingScheme: ScalingScheme = .doubleTiered(firstThreshold: 30, firstScale: 1, secondThreshold: 300, secondScale: 0.5)
     public var scalingScheme: ScalingScheme = .normal
-
+    
     public init(location: CLLocation?, tag: String? = nil) {
         self.location = location
         self.tag = tag
