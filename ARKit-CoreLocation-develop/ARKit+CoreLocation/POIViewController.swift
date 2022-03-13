@@ -22,6 +22,11 @@ class POIViewController: UIViewController {
     @IBOutlet var infoLabel: UILabel!
     @IBOutlet weak var nodePositionLabel: UILabel!
 
+    @IBOutlet weak var resetButton: UIButton!
+    @IBAction func onTappedReset(_ sender: UIButton) {
+        
+        
+    }
     @IBOutlet var contentView: UIView!
     let sceneLocationView = SceneLocationView()
 
