@@ -487,45 +487,72 @@ extension POIViewController {
         }
         
         // Creating Hole 2 Node
-        let hole2Layer = distance_layer
+//        let hole2Layer = distance_layer
 //
-        _ = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
-            let location1 = self.sceneLocationView.sceneLocationManager.currentLocation
-            let location2 = CLLocation(latitude: flag2_coor.lat, longitude: flag2_coor.long)
-            let distanceInMeters = location1!.distance(from:location2)
-            hole2Layer.string = String(format: "Flag 2\nDistance: %.1fm", distanceInMeters)
-        }
-        var hole2 = buildLayerNode(latitude: flag2_coor.lat, longitude: flag2_coor.long, altitude: 10, layer: hole2Layer)
-        layers.append(hole2Layer)
-        nodes.append(hole2)
-        hole2 = buildNode(latitude: flag2_coor.lat, longitude: flag2_coor.long, altitude: 10, imageName: "flag2")
-        nodes.append(hole2)
-        
 //        _ = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
-//            for layer in layers {
-//                let location1 = self.sceneLocationView.sceneLocationManager.currentLocation
-//                let location2 = CLLocation(latitude: flag2_coor.lat, longitude: flag2_coor.long)
-//                let distanceInMeters = location1!.distance(from:location2)
-//                layer.string = String(format: "Flag 2\nDistance: %.1fm", distanceInMeters)
-//            }
+//            let location1 = self.sceneLocationView.sceneLocationManager.currentLocation
+//            let location2 = CLLocation(latitude: flag2_coor.lat, longitude: flag2_coor.long)
+//            let distanceInMeters = location1!.distance(from:location2)
+//            hole2Layer.string = String(format: "Flag 2\nDistance: %.1fm", distanceInMeters)
+//        }
+//        var hole2 = buildLayerNode(latitude: flag2_coor.lat, longitude: flag2_coor.long, altitude: 10, layer: hole2Layer)
+//        layers.append(hole2Layer)
+//        nodes.append(hole2)
+//        hole2 = buildNode(latitude: flag2_coor.lat, longitude: flag2_coor.long, altitude: 10, imageName: "flag2")
+//        nodes.append(hole2)
 //
+//        for (idx, bunker) in flag2_bunkers.enumerated(){
+//            let layer = CATextLayer()
+//            layer.frame = CGRect(x: 0, y: 0, width: 200, height: 40)
+//            layer.cornerRadius = 4
+//            layer.fontSize = 14
+//            layer.alignmentMode = .center
+//            layer.foregroundColor = UIColor.black.cgColor
+//            layer.backgroundColor = UIColor.white.cgColor
+//            let time = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
+//                let location1 = self.sceneLocationView.sceneLocationManager.currentLocation
+//                let location2 = CLLocation(latitude: bunker.lat, longitude: bunker.long)
+//                let distanceInMeters = location1!.distance(from:location2)
+//                layer.string = String(format: "Bunker \(idx)\nDistance: %.1fm", distanceInMeters)
+//            }
+//            layers.append(layer)
+//            hole2 = buildLayerNode(latitude: bunker.lat, longitude: bunker.long, altitude: 20, layer: layer)
+//            nodes.append(hole2)
 //        }
         
-//        updateArcLocation(latitude: flag2_lat, longitude: flag2_long, altitude: 60)
-        
+        // Creating Hole 3 Node
 //        let hole3Layer = distance_layer
 //
 //        _ = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
 //            let location1 = self.sceneLocationView.sceneLocationManager.currentLocation
-//            let location2 = CLLocation(latitude: flag3_coor.lat, longitude: flag1_coor.long)
+//            let location2 = CLLocation(latitude: flag3_coor.lat, longitude: flag3_coor.long)
 //            let distanceInMeters = location1!.distance(from:location2)
-//            hole3Layer.string = String(format: "Flag3\nDistance: %.1fm", distanceInMeters)
+//            hole3Layer.string = String(format: "Flag 2\nDistance: %.1fm", distanceInMeters)
 //        }
-//        var hole3 = buildLayerNode(latitude: flag3_coor.lat, longitude: flag3_coor.long, altitude: 0, layer: hole3Layer)
+//        var hole3 = buildLayerNode(latitude: flag3_coor.lat, longitude: flag3_coor.long, altitude: 10, layer: hole2Layer)
+//        layers.append(hole3Layer)
 //        nodes.append(hole3)
-//        hole3 = buildNode(latitude: flag3_coor.lat, longitude: flag3_coor.long, altitude: 0, imageName: "flag3")
+//        hole3 = buildNode(latitude: flag3_coor.lat, longitude: flag3_coor.long, altitude: 10, imageName: "flag3")
 //        nodes.append(hole3)
-//        updateArcLocation(latitude: flag3_coor.lat, longitude: flag3_coor.long, altitude: 120)
+//
+//        for (idx, bunker) in flag3_bunkers.enumerated(){
+//            let layer = CATextLayer()
+//            layer.frame = CGRect(x: 0, y: 0, width: 200, height: 40)
+//            layer.cornerRadius = 4
+//            layer.fontSize = 14
+//            layer.alignmentMode = .center
+//            layer.foregroundColor = UIColor.black.cgColor
+//            layer.backgroundColor = UIColor.white.cgColor
+//            let time = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
+//                let location1 = self.sceneLocationView.sceneLocationManager.currentLocation
+//                let location2 = CLLocation(latitude: bunker.lat, longitude: bunker.long)
+//                let distanceInMeters = location1!.distance(from:location2)
+//                layer.string = String(format: "Bunker \(idx)\nDistance: %.1fm", distanceInMeters)
+//            }
+//            layers.append(layer)
+//            hole3 = buildLayerNode(latitude: bunker.lat, longitude: bunker.long, altitude: 20, layer: layer)
+//            nodes.append(hole3)
+//        }
 
         return nodes
 
