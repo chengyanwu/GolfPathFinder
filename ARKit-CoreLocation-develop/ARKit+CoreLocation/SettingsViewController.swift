@@ -14,8 +14,10 @@ import UIKit
 class SettingsViewController: UIViewController {
 
     @IBOutlet weak var showMapSwitch: UISwitch!
+    @IBOutlet weak var showVoiceSwitch: UISwitch!
     @IBOutlet weak var searchResultTable: UITableView!
     @IBOutlet weak var refreshControl: UIActivityIndicatorView!
+    
     
     @IBOutlet weak var clubRangeField: UITextField!
     @IBAction func enterTapped(_ sender: Any) {

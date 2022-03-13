@@ -245,6 +245,7 @@
                         <outlet property="clubRangeField5" destination="T1x-pZ-bKQ" id="kKY-X9-A8M"/>
                         <outlet property="searchResultTable" destination="XiP-cy-0vP" id="uhz-D6-EXI"/>
                         <outlet property="showMapSwitch" destination="7qp-wG-0Ub" id="3Mc-RT-Bhx"/>
+                        <outlet property="showVoiceSwitch" destination="kRG-fB-n78" id="Puq-O6-pG2"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="h4c-ZD-Eta" userLabel="First Responder" sceneMemberID="firstResponder"/>
