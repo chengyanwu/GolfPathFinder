@@ -1,3 +1,5 @@
+
+
 //
 //  JSON_Struct.swift
 //  ARKit+CoreLocation
@@ -5,11 +7,10 @@
 //  Created by Ian Wu on 2/23/22.
 //  Copyright © 2022 Project Dent. All rights reserved.
 //
-
 import Foundation
 
 // MARK: - Welcome
-struct Root: Codable {
+struct JSON_Flag: Codable {
     let resources: [Resource]
 }
 
@@ -55,3 +56,27 @@ enum TypeEnum: String, Codable {
     case red = "Red"
     case silver = "Silver"
 }
+
+
+//struct JSON_Polygon: Codable {
+//    let resources: [Resource2]
+//}
+//
+//// MARK: - Resource
+//struct Resource2: Codable {
+//    let holeid: Int
+//    let surfacetype: Surfacetype
+//    let polygon: [Polygon]
+//}
+//
+//// MARK: - Polygon
+//struct Polygon: Codable {
+//    let lat, long: Double
+//}
+//
+//enum Surfacetype: String, Codable {
+//    case fairway = "Fairway"
+//    case green = "Green"
+//    case sand = "Sand"
+//    case woods = "Woods"
+//}
