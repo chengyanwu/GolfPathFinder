@@ -32,6 +32,7 @@
 		580A603392EEF4589D68F428 /* Pods_ARKit_CoreLocation_ARCLTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AE4378FAA43D764F4F6D0513 /* Pods_ARKit_CoreLocation_ARCLTests.framework */; };
 		763C1FC827DB233C0037CC51 /* JSON_Poly.swift in Sources */ = {isa = PBXBuildFile; fileRef = 763C1FC727DB233C0037CC51 /* JSON_Poly.swift */; };
 		763C1FCA27DD590C0037CC51 /* FloatingPoint_Extention.swift in Sources */ = {isa = PBXBuildFile; fileRef = 763C1FC927DD590C0037CC51 /* FloatingPoint_Extention.swift */; };
+		763C1FCC27DE76050037CC51 /* NLP.swift in Sources */ = {isa = PBXBuildFile; fileRef = 763C1FCB27DE76050037CC51 /* NLP.swift */; };
 		76AD003D27C491C900133BFE /* awsSign.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76AD003C27C491C900133BFE /* awsSign.swift */; };
 		76AD004327C492D000133BFE /* CryptoSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 76AD004227C492D000133BFE /* CryptoSwift */; };
 		76AD004527C7337200133BFE /* JSON_Flag.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76AD004427C7337200133BFE /* JSON_Flag.swift */; };
@@ -102,6 +103,7 @@
 		6C10523EF85AA6B7CDF962AD /* Pods_ARKit_CoreLocation.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_ARKit_CoreLocation.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		763C1FC727DB233C0037CC51 /* JSON_Poly.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSON_Poly.swift; sourceTree = "<group>"; };
 		763C1FC927DD590C0037CC51 /* FloatingPoint_Extention.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloatingPoint_Extention.swift; sourceTree = "<group>"; };
+		763C1FCB27DE76050037CC51 /* NLP.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NLP.swift; sourceTree = "<group>"; };
 		76AD003C27C491C900133BFE /* awsSign.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = awsSign.swift; sourceTree = "<group>"; };
 		76AD004427C7337200133BFE /* JSON_Flag.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSON_Flag.swift; sourceTree = "<group>"; };
 		8A56D1F446B80D3F433CB253 /* Pods-Node Demos.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Node Demos.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Node Demos/Pods-Node Demos.debug.xcconfig"; sourceTree = "<group>"; };
@@ -271,6 +273,7 @@
 				76AD004427C7337200133BFE /* JSON_Flag.swift */,
 				763C1FC727DB233C0037CC51 /* JSON_Poly.swift */,
 				763C1FC927DD590C0037CC51 /* FloatingPoint_Extention.swift */,
+				763C1FCB27DE76050037CC51 /* NLP.swift */,
 			);
 			path = "ARKit+CoreLocation";
 			sourceTree = "<group>";
@@ -720,6 +723,7 @@
 				36B3F34B221D077700745096 /* SettingsViewController.swift in Sources */,
 				49A3FBDC1F09988100AA59C8 /* AppDelegate.swift in Sources */,
 				3643DAED221E3390002BEAFC /* OpenARCell.swift in Sources */,
+				763C1FCC27DE76050037CC51 /* NLP.swift in Sources */,
 				3643DAEF221E3840002BEAFC /* LocationCell.swift in Sources */,
 				3643DAEB221E30C6002BEAFC /* UIButton+Designable.swift in Sources */,
 				76AD003D27C491C900133BFE /* awsSign.swift in Sources */,
