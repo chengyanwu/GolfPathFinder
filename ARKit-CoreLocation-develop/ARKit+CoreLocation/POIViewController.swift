@@ -293,6 +293,8 @@ extension POIViewController {
         
         var flag1_coor = coor()
         var flag1_bunkers: [coor] = []
+        var flag1_greens: [coor] = []
+        var flag1_fairways: [coor] = []
         
         var flag2_coor = coor(lat: 34.413367, long: -119.844813)
         var flag2_bunkers: [coor] = []
@@ -360,6 +362,12 @@ extension POIViewController {
 //                    flag1_bunkers.append(coor_tmp)
 //                }
 //            }
+            for poly in json.resources[0].polygon{
+                flag1_greens.append(coor(lat: poly.lat, long: poly.long))
+            }
+            for poly in json.resources[1].polygon{
+                flag1_fairways.append(coor(lat: poly.lat, long: poly.long))
+            }
             flag1_bunkers.append(coor(lat: 34.383622, long: -119.817028))
             flag1_bunkers.append(coor(lat: 34.376743, long: -119.851897))
             flag1_bunkers.append(coor(lat: 34.375485, long: -119.890519))
@@ -399,6 +407,13 @@ extension POIViewController {
                     coor_tmp.long = long / count
                     flag2_bunkers.append(coor_tmp)
                 }
+            }
+            
+            for poly in json.resources[0].polygon{
+                flag2_greens.append(coor(lat: poly.lat, long: poly.long))
+            }
+            for poly in json.resources[1].polygon{
+                flag2_fairways.append(coor(lat: poly.lat, long: poly.long))
             }
             
             print(flag2_bunkers)
@@ -453,18 +468,18 @@ extension POIViewController {
         }
         
         // Creating Hole 2 Node
-//        let hole2Layer = distance_layer
+        let hole2Layer = distance_layer
 //
-//        _ = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
-//            let location1 = self.sceneLocationView.sceneLocationManager.currentLocation
-//            let location2 = CLLocation(latitude: flag2_coor.lat, longitude: flag2_coor.long)
-//            let distanceInMeters = location1!.distance(from:location2)
-//            hole2Layer.string = String(format: "Flag 2\nDistance: %.1fm", distanceInMeters)
-//        }
-//        var hole2 = buildLayerNode(latitude: flag2_coor.lat, longitude: flag2_coor.long, altitude: 10, layer: hole2Layer)
-//        nodes.append(hole2)
-//        hole2 = buildNode(latitude: flag2_coor.lat, longitude: flag2_coor.long, altitude: 10, imageName: "flag2")
-//        nodes.append(hole2)
+        _ = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
+            let location1 = self.sceneLocationView.sceneLocationManager.currentLocation
+            let location2 = CLLocation(latitude: flag2_coor.lat, longitude: flag2_coor.long)
+            let distanceInMeters = location1!.distance(from:location2)
+            hole2Layer.string = String(format: "Flag 2\nDistance: %.1fm", distanceInMeters)
+        }
+        var hole2 = buildLayerNode(latitude: flag2_coor.lat, longitude: flag2_coor.long, altitude: 10, layer: hole2Layer)
+        nodes.append(hole2)
+        hole2 = buildNode(latitude: flag2_coor.lat, longitude: flag2_coor.long, altitude: 10, imageName: "flag2")
+        nodes.append(hole2)
         
 //        updateArcLocation(latitude: flag2_lat, longitude: flag2_long, altitude: 60)
         
