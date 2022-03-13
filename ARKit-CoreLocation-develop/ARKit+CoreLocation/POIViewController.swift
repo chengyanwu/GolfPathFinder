@@ -264,21 +264,13 @@ extension POIViewController {
 
     }
     
-//    private func hmacStringToSign(stringToSign: String, secretSigningKey: String, shortDateString: String) -> String? {
-//            let k1 = "AWS4" + secretSigningKey
-//            guard let sk1 = try? HMAC(key: [UInt8](k1.utf8), variant: .sha256).authenticate([UInt8](shortDateString.utf8)),
-//            let sk2 = try? HMAC(key: sk1, variant: .sha256).authenticate([UInt8]("us-west-1")),
-//            let sk3 = try? HMAC(key: sk2, variant: .sha256).authenticate([UInt8]("us-west-1")),
-//            let sk4 = try? HMAC(key: sk3, variant: .sha256).authenticate([UInt8]("us-west-1")),
-//            let signature = try? HMAC(key: sk4, variant: .sha256).authenticate([UInt8](stringToSign.utf8)) else { return .none }
-//        return signature.toHexString()
-//    }
-    
-//    struct course: Hashable, Codable{
-//        let name:String
-//        let
-//    }
 
+    
+    struct coor{
+        var lat = 0.0
+        var long = 0.0
+    }
+    
     /// Builds the location annotations for a few random objects, scattered across the country
     ///
     /// - Returns: an array of annotation nodes.
@@ -290,7 +282,8 @@ extension POIViewController {
         
 //        let urlString = "https://api.golfbert.com/v1/courses"
         let urlString_flag = "https://api.golfbert.com/v1/courses/1593/holes"
-        let urlString_polygon = "https://api.golfbert.com/v1/holes/67111/polygons"
+        let urlString_polygon1 = "https://api.golfbert.com/v1/holes/67111/polygons"
+        let urlString_polygon2 = "https://api.golfbert.com/v1/holes/67112/polygons"
         
         var urlRequest = URLRequest(url:URL(string: urlString_flag)!)
         urlRequest.httpMethod = "GET"
@@ -299,20 +292,25 @@ extension POIViewController {
         
         try! urlRequest.sign(accessKeyId: access_key, secretAccessKey: secret_key)
         
-        var flag1_lat: Double = 0
-        var flag1_long: Double = 0
+        var flag1_coor = coor()
+        var flag1_bunkers: [coor] = []
+        var flag1_greens: [coor] = []
+        var flag1_fairways: [coor] = []
         
-        var flag2_lat: Double = 34.413367
-        var flag2_long: Double = -119.844813
+        var flag2_coor = coor(lat: 34.413367, long: -119.844813)
+        var flag2_bunkers: [coor] = []
+        var flag2_greens: [coor] = []
+        var flag2_fairways: [coor] = []
         
-        var flag3_lat: Double = 34.404868
-        var flag3_long: Double = -119.844519
+        var flag3_coor = coor(lat: 34.404868, long: -119.844519)
+        var flag3_bunkers: [coor] = []
+        var flag3_greens: [coor] = []
+        var flag3_fairways: [coor] = []
         
-        var flag4_lat: Double = 34.428259
-        var flag4_long: Double = -119.850368
-        
-        var bunker_lat: Double = 34.395313
-        var bunker_long: Double = -119.606658
+        var flag4_coor = coor(lat: 34.428259, long: -119.850368)
+        var flag4_bunkers: [coor] = []
+        var flag4_greens: [coor] = []
+        var flag4_fairways: [coor] = []
         
         let group = DispatchGroup()
         group.enter()
@@ -321,21 +319,22 @@ extension POIViewController {
             print("enterning url session 1")
 //            group.enter()
             let json = try! JSONDecoder().decode(JSON_Flag.self, from:data)
-            flag1_lat = json.resources[0].flagcoords.lat
-            flag1_long = json.resources[0].flagcoords.long
             
-//            flag2_lat = json.resources[1].flagcoords.lat
-//            flag2_long = json.resources[1].flagcoords.long
+            
+            flag1_coor.lat = json.resources[0].flagcoords.lat
+            flag1_coor.long = json.resources[0].flagcoords.long
+            
+//            flag2_coor.lat = json.resources[1].flagcoords.lat
+//            flag2_coor.long = json.resources[1].flagcoords.long
 //
-//            flag3_lat = json.resources[2].flagcoords.lat
-//            flag3_long = json.resources[2].flagcoords.long
+//            flag3_coor.lat = json.resources[2].flagcoords.lat
+//            flag3_coor.long = json.resources[2].flagcoords.long
 //
 //            flag4_lat = json.resources[3].flagcoords.lat
 //            flag4_long = json.resources[3].flagcoords.long
             
 
-            print(flag1_lat)
-            print(flag1_long)
+            print(flag1_coor)
             
             
             print("leaving url session 1")
@@ -343,17 +342,12 @@ extension POIViewController {
 
         }).resume()
         
-        urlRequest.url = URL(string: urlString_polygon)
-        try! urlRequest.sign(accessKeyId: access_key, secretAccessKey: secret_key)
-        print(urlRequest)
-        
-        group.enter()
-        var urlRequest2 = URLRequest(url:URL(string: urlString_polygon)!)
+        var urlRequest2 = URLRequest(url:URL(string: urlString_polygon1)!)
         urlRequest2.httpMethod = "GET"
         urlRequest2.addValue(API_token, forHTTPHeaderField: "x-api-key")
         urlRequest2.addValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
-        
         try! urlRequest2.sign(accessKeyId: access_key, secretAccessKey: secret_key)
+        group.enter()
         let task2 = URLSession.shared.dataTask(with: urlRequest2, completionHandler:{
             (data: Data!, response: URLResponse!, error: Error!) -> Void in
             print("enterning url session 2")
@@ -362,32 +356,99 @@ extension POIViewController {
             var lat = 0.0
             var long = 0.0
             var count = 0.0
-            for poly in json.resources[2].polygon{
-                lat += poly.lat
-                long += poly.long
-                count += 1
+            var coor_tmp = coor()
+//            for resource in json.resources{
+//                if(resource.surfacetype == Surfacetype.sand){
+//                    for poly in resource.polygon{
+//                        lat += poly.lat
+//                        long += poly.long
+//                        count += 1
+//                    }
+//                    coor_tmp.lat = lat / count
+//                    coor_tmp.long = long / count
+//                    flag1_bunkers.append(coor_tmp)
+//                }
+//            }
+            for poly in json.resources[0].polygon{
+                flag1_greens.append(coor(lat: poly.lat, long: poly.long))
             }
-            lat = lat / count
-            long = long / count
-
-            bunker_lat = lat
-            bunker_long = long
-
-            print(bunker_lat)
-            print(bunker_long)
+            for poly in json.resources[1].polygon{
+                flag1_fairways.append(coor(lat: poly.lat, long: poly.long))
+            }
+            flag1_bunkers.append(coor(lat: 34.383622, long: -119.817028))
+            flag1_bunkers.append(coor(lat: 34.376743, long: -119.851897))
+            flag1_bunkers.append(coor(lat: 34.375485, long: -119.890519))
+            flag1_bunkers.append(coor(lat: 34.395056, long: -119.934223))
+            
+            print(flag1_bunkers)
             
             group.leave()
             print("leaving url session 2")
 
         }).resume()
         
+        var urlRequest3 = URLRequest(url:URL(string: urlString_polygon2)!)
+        urlRequest3.httpMethod = "GET"
+        urlRequest3.addValue(API_token, forHTTPHeaderField: "x-api-key")
+        urlRequest3.addValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
+        try! urlRequest3.sign(accessKeyId: access_key, secretAccessKey: secret_key)
+        
+        group.enter()
+        let task3 = URLSession.shared.dataTask(with: urlRequest3, completionHandler:{
+            (data: Data!, response: URLResponse!, error: Error!) -> Void in
+            print("enterning url session 3")
+            let json = try! JSONDecoder().decode(JSONPoly.self, from:data)
+            
+            var lat = 0.0
+            var long = 0.0
+            var count = 0.0
+            var coor_tmp = coor()
+            for resource in json.resources{
+                if(resource.surfacetype == Surfacetype.sand){
+                    for poly in resource.polygon{
+                        lat += poly.lat
+                        long += poly.long
+                        count += 1
+                    }
+                    coor_tmp.lat = lat / count
+                    coor_tmp.long = long / count
+                    flag2_bunkers.append(coor_tmp)
+                }
+            }
+            
+            for poly in json.resources[0].polygon{
+                flag2_greens.append(coor(lat: poly.lat, long: poly.long))
+            }
+            for poly in json.resources[1].polygon{
+                flag2_fairways.append(coor(lat: poly.lat, long: poly.long))
+            }
+            
+            print(flag2_bunkers)
+            
+            group.leave()
+            print("leaving url session 3")
+
+        }).resume()
+        
         group.wait()
         print("All url session ended")
-        print(flag1_lat)
-        print(flag1_long)
         
+        
+        // Initilaizing LAN List
         var nodes: [LocationAnnotationNode] = []
+        var layers: [CATextLayer] = []
+        
+        // Creating template for distance-text overlay template
+        let distance_layer = CATextLayer()
+        distance_layer.frame = CGRect(x: 0, y: 0, width: 200, height: 40)
+        distance_layer.cornerRadius = 4
+        distance_layer.fontSize = 14
+        distance_layer.alignmentMode = .center
+        distance_layer.foregroundColor = UIColor.black.cgColor
+        distance_layer.backgroundColor = UIColor.white.cgColor
 
+        
+        // Creating Hole 1 Node
         let hole1Layer = CATextLayer()
         hole1Layer.frame = CGRect(x: 0, y: 0, width: 200, height: 40)
         hole1Layer.cornerRadius = 4
@@ -395,81 +456,106 @@ extension POIViewController {
         hole1Layer.alignmentMode = .center
         hole1Layer.foregroundColor = UIColor.black.cgColor
         hole1Layer.backgroundColor = UIColor.white.cgColor
-
         _ = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
             let location1 = self.sceneLocationView.sceneLocationManager.currentLocation
-            let location2 = CLLocation(latitude: flag1_lat, longitude: flag1_long)
+            let location2 = CLLocation(latitude: flag1_coor.lat, longitude: flag1_coor.long)
             let distanceInMeters = location1!.distance(from:location2)
             hole1Layer.string = String(format: "Flag 1\nDistance: %.1fm", distanceInMeters)
         }
-
-        var hole1 = buildLayerNode(latitude: flag1_lat, longitude: flag1_long, altitude: 20, layer: hole1Layer)
+        layers.append(hole1Layer)
+        var hole1 = buildLayerNode(latitude: flag1_coor.lat, longitude: flag1_coor.long, altitude: 20, layer: hole1Layer)
         nodes.append(hole1)
-        hole1 = buildNode(latitude: flag1_lat, longitude: flag1_long, altitude: 60, imageName: "flag1")
+        hole1 = buildNode(latitude: flag1_coor.lat, longitude: flag1_coor.long, altitude: 200, imageName: "flag1")
         nodes.append(hole1)
         
-        let hole2Layer = CATextLayer()
-        hole2Layer.frame = CGRect(x: 0, y: 0, width: 200, height: 40)
-        hole2Layer.cornerRadius = 4
-        hole2Layer.fontSize = 14
-        hole2Layer.alignmentMode = .center
-        hole2Layer.foregroundColor = UIColor.black.cgColor
-        hole2Layer.backgroundColor = UIColor.white.cgColor
-
-        _ = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
-            let location1 = self.sceneLocationView.sceneLocationManager.currentLocation
-            let location2 = CLLocation(latitude: flag2_lat, longitude: flag2_long)
-            let distanceInMeters = location1!.distance(from:location2)
-            hole2Layer.string = String(format: "Flag 2\nDistance: %.1fm", distanceInMeters)
-        }
-
-        var hole2 = buildLayerNode(latitude: flag2_lat, longitude: flag2_long, altitude: 0, layer: hole2Layer)
-        nodes.append(hole2)
-        hole2 = buildNode(latitude: flag2_lat, longitude: flag2_long, altitude: 40, imageName: "flag2")
-        nodes.append(hole2)
-        
-//        updateArcLocation(latitude: flag2_lat, longitude: flag2_long, altitude: 60)
-        
-        let hole3Layer = CATextLayer()
-        hole3Layer.frame = CGRect(x: 0, y: 0, width: 200, height: 40)
-        hole3Layer.cornerRadius = 4
-        hole3Layer.fontSize = 14
-        hole3Layer.alignmentMode = .center
-        hole3Layer.foregroundColor = UIColor.black.cgColor
-        hole3Layer.backgroundColor = UIColor.white.cgColor
-
-        _ = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
-            let location1 = self.sceneLocationView.sceneLocationManager.currentLocation
-            let location2 = CLLocation(latitude: flag3_lat, longitude: flag3_long)
-            let distanceInMeters = location1!.distance(from:location2)
-            hole3Layer.string = String(format: "Flag3\nDistance: %.1fm", distanceInMeters)
-        }
-
-        var hole3 = buildLayerNode(latitude: flag3_lat, longitude: flag3_long, altitude: 20, layer: hole3Layer)
-        nodes.append(hole3)
-        hole3 = buildNode(latitude: flag3_lat, longitude: flag3_long, altitude: 60, imageName: "flag3")
-        nodes.append(hole3)
-        updateArcLocation(latitude: flag3_lat, longitude: flag3_long, altitude: 60)
-        
-        let hole4Layer = CATextLayer()
-        hole4Layer.frame = CGRect(x: 0, y: 0, width: 200, height: 40)
-        hole4Layer.cornerRadius = 4
-        hole4Layer.fontSize = 14
-        hole4Layer.alignmentMode = .center
-        hole4Layer.foregroundColor = UIColor.black.cgColor
-        hole4Layer.backgroundColor = UIColor.white.cgColor
-
-        _ = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
-            let location1 = self.sceneLocationView.sceneLocationManager.currentLocation
-            let location2 = CLLocation(latitude: flag4_lat, longitude: flag4_long)
-            let distanceInMeters = location1!.distance(from:location2)
-            hole4Layer.string = String(format: "Bunker\nDistance: %.1fm", distanceInMeters)
+        for (idx, bunker) in flag1_bunkers.enumerated(){
+            let layer = CATextLayer()
+            layer.frame = CGRect(x: 0, y: 0, width: 200, height: 40)
+            layer.cornerRadius = 4
+            layer.fontSize = 14
+            layer.alignmentMode = .center
+            layer.foregroundColor = UIColor.black.cgColor
+            layer.backgroundColor = UIColor.white.cgColor
+            let time = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
+                let location1 = self.sceneLocationView.sceneLocationManager.currentLocation
+                let location2 = CLLocation(latitude: bunker.lat, longitude: bunker.long)
+                let distanceInMeters = location1!.distance(from:location2)
+                layer.string = String(format: "Bunker \(idx)\nDistance: %.1fm", distanceInMeters)
+            }
+            layers.append(layer)
+            hole1 = buildLayerNode(latitude: bunker.lat, longitude: bunker.long, altitude: 20, layer: layer)
+            nodes.append(hole1)
+            hole1 = buildNode(latitude: bunker.lat, longitude: bunker.long, altitude: 100, imageName: "bunker")
+            nodes.append(hole1)
         }
         
-        var hole4 = buildLayerNode(latitude: bunker_lat, longitude: bunker_long, altitude: 20, layer: hole4Layer)
-        nodes.append(hole4)
-        hole4 = buildNode(latitude: bunker_lat, longitude: bunker_long, altitude: 60, imageName: "bunker")
-        nodes.append(hole4)
+        // Creating Hole 2 Node
+//        let hole2Layer = distance_layer
+//
+//        _ = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
+//            let location1 = self.sceneLocationView.sceneLocationManager.currentLocation
+//            let location2 = CLLocation(latitude: flag2_coor.lat, longitude: flag2_coor.long)
+//            let distanceInMeters = location1!.distance(from:location2)
+//            hole2Layer.string = String(format: "Flag 2\nDistance: %.1fm", distanceInMeters)
+//        }
+//        var hole2 = buildLayerNode(latitude: flag2_coor.lat, longitude: flag2_coor.long, altitude: 10, layer: hole2Layer)
+//        layers.append(hole2Layer)
+//        nodes.append(hole2)
+//        hole2 = buildNode(latitude: flag2_coor.lat, longitude: flag2_coor.long, altitude: 10, imageName: "flag2")
+//        nodes.append(hole2)
+//
+//        for (idx, bunker) in flag2_bunkers.enumerated(){
+//            let layer = CATextLayer()
+//            layer.frame = CGRect(x: 0, y: 0, width: 200, height: 40)
+//            layer.cornerRadius = 4
+//            layer.fontSize = 14
+//            layer.alignmentMode = .center
+//            layer.foregroundColor = UIColor.black.cgColor
+//            layer.backgroundColor = UIColor.white.cgColor
+//            let time = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
+//                let location1 = self.sceneLocationView.sceneLocationManager.currentLocation
+//                let location2 = CLLocation(latitude: bunker.lat, longitude: bunker.long)
+//                let distanceInMeters = location1!.distance(from:location2)
+//                layer.string = String(format: "Bunker \(idx)\nDistance: %.1fm", distanceInMeters)
+//            }
+//            layers.append(layer)
+//            hole2 = buildLayerNode(latitude: bunker.lat, longitude: bunker.long, altitude: 20, layer: layer)
+//            nodes.append(hole2)
+//        }
+        
+        // Creating Hole 3 Node
+//        let hole3Layer = distance_layer
+//
+//        _ = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
+//            let location1 = self.sceneLocationView.sceneLocationManager.currentLocation
+//            let location2 = CLLocation(latitude: flag3_coor.lat, longitude: flag3_coor.long)
+//            let distanceInMeters = location1!.distance(from:location2)
+//            hole3Layer.string = String(format: "Flag 2\nDistance: %.1fm", distanceInMeters)
+//        }
+//        var hole3 = buildLayerNode(latitude: flag3_coor.lat, longitude: flag3_coor.long, altitude: 10, layer: hole2Layer)
+//        layers.append(hole3Layer)
+//        nodes.append(hole3)
+//        hole3 = buildNode(latitude: flag3_coor.lat, longitude: flag3_coor.long, altitude: 10, imageName: "flag3")
+//        nodes.append(hole3)
+//
+//        for (idx, bunker) in flag3_bunkers.enumerated(){
+//            let layer = CATextLayer()
+//            layer.frame = CGRect(x: 0, y: 0, width: 200, height: 40)
+//            layer.cornerRadius = 4
+//            layer.fontSize = 14
+//            layer.alignmentMode = .center
+//            layer.foregroundColor = UIColor.black.cgColor
+//            layer.backgroundColor = UIColor.white.cgColor
+//            let time = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
+//                let location1 = self.sceneLocationView.sceneLocationManager.currentLocation
+//                let location2 = CLLocation(latitude: bunker.lat, longitude: bunker.long)
+//                let distanceInMeters = location1!.distance(from:location2)
+//                layer.string = String(format: "Bunker \(idx)\nDistance: %.1fm", distanceInMeters)
+//            }
+//            layers.append(layer)
+//            hole3 = buildLayerNode(latitude: bunker.lat, longitude: bunker.long, altitude: 20, layer: layer)
+//            nodes.append(hole3)
+//        }
 
         return nodes
 
