@@ -123,9 +123,9 @@
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
                                                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ue9-Jp-EaX">
-                                                    <rect key="frame" x="76.5" y="15" width="229" height="30"/>
+                                                    <rect key="frame" x="169.5" y="15" width="43" height="30"/>
                                                     <inset key="contentEdgeInsets" minX="8" minY="8" maxX="8" maxY="8"/>
-                                                    <state key="normal" title="Show AR Points of Interest">
+                                                    <state key="normal" title="GO">
                                                         <color key="titleColor" red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                     </state>
                                                     <userDefinedRuntimeAttributes>
