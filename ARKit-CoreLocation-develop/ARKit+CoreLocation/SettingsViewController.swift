@@ -19,11 +19,14 @@ class SettingsViewController: UIViewController {
     
     @IBOutlet weak var clubRangeField: UITextField!
     @IBAction func enterTapped(_ sender: Any) {
-        print(clubRangeField.text)
+        //print(clubRangeField.text)
         self.view.endEditing(true)
     }
     
-
+    @IBOutlet weak var clubRangeField2: UITextField!
+    @IBOutlet weak var clubRangeField3: UITextField!
+    @IBOutlet weak var clubRangeField4: UITextField!
+    @IBOutlet weak var clubRangeField5: UITextField!
     var locationManager = CLLocationManager()
 
     override func viewDidLoad() {
