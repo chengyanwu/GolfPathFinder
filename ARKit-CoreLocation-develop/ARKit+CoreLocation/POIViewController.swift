@@ -282,7 +282,8 @@ extension POIViewController {
         
 //        let urlString = "https://api.golfbert.com/v1/courses"
         let urlString_flag = "https://api.golfbert.com/v1/courses/1593/holes"
-        let urlString_polygon = "https://api.golfbert.com/v1/holes/67111/polygons"
+        let urlString_polygon1 = "https://api.golfbert.com/v1/holes/67111/polygons"
+        let urlString_polygon2 = "https://api.golfbert.com/v1/holes/67112/polygons"
         
         var urlRequest = URLRequest(url:URL(string: urlString_flag)!)
         urlRequest.httpMethod = "GET"
@@ -341,7 +342,7 @@ extension POIViewController {
 
         }).resume()
         
-        var urlRequest2 = URLRequest(url:URL(string: urlString_polygon)!)
+        var urlRequest2 = URLRequest(url:URL(string: urlString_polygon1)!)
         urlRequest2.httpMethod = "GET"
         urlRequest2.addValue(API_token, forHTTPHeaderField: "x-api-key")
         urlRequest2.addValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
@@ -386,7 +387,7 @@ extension POIViewController {
 
         }).resume()
         
-        var urlRequest3 = URLRequest(url:URL(string: urlString_polygon)!)
+        var urlRequest3 = URLRequest(url:URL(string: urlString_polygon2)!)
         urlRequest3.httpMethod = "GET"
         urlRequest3.addValue(API_token, forHTTPHeaderField: "x-api-key")
         urlRequest3.addValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
@@ -483,6 +484,8 @@ extension POIViewController {
             }
             layers.append(layer)
             hole1 = buildLayerNode(latitude: bunker.lat, longitude: bunker.long, altitude: 20, layer: layer)
+            nodes.append(hole1)
+            hole1 = buildNode(latitude: bunker.lat, longitude: bunker.long, altitude: 100, imageName: "bunker")
             nodes.append(hole1)
         }
         
