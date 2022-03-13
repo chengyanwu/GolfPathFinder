@@ -1029,13 +1029,13 @@
 			baseConfigurationReference = 8C31ACA439BC114F28F96BDD /* Pods-ARKit+CoreLocation.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				DEVELOPMENT_TEAM = JZDQJ6D9GW;
+				DEVELOPMENT_TEAM = VZS84TR647;
 				INFOPLIST_FILE = "ARKit+CoreLocation/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "com.maaap.ProjectDent.ARKit-CoreLocation-cs291";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.maaap.ProjectDent.ARKit-CoreLocation-cs291-11";
 				PRODUCT_NAME = ARGolfPathFinder;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -1047,13 +1047,13 @@
 			baseConfigurationReference = CED01C5C93D16CD7C03711E5 /* Pods-ARKit+CoreLocation.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				DEVELOPMENT_TEAM = JZDQJ6D9GW;
+				DEVELOPMENT_TEAM = VZS84TR647;
 				INFOPLIST_FILE = "ARKit+CoreLocation/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "com.maaap.ProjectDent.ARKit-CoreLocation-cs291";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.maaap.ProjectDent.ARKit-CoreLocation-cs291-11";
 				PRODUCT_NAME = ARGolfPathFinder;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
