@@ -74,6 +74,8 @@ class POIViewController: UIViewController {
         }
     }
     
+    var clubs: [Int] = [250, 200, 150, 100, 50]
+    
     var modelNode:SCNNode!
     let rooteNodeName = "Object-1"
     var originalTransform:SCNMatrix4!
@@ -778,6 +780,21 @@ extension POIViewController {
         label.textAlignment = .center
         return LocationAnnotationNode(location: location, view: label)
     }
+    
+    func chooseClub(dist: Double) -> Int{
+        self.clubs.sort(by: >)
+        if (Double(clubs[0]) < dist) {
+                   return 0
+               }
+               var curClub = 0
+               for (i, club) in clubs.enumerated() {
+                   if (Double(club) < dist){
+                       return i
+                   }
+                   curClub = i
+               }
+               return curClub
+           }
 
     func buildLayerNode(latitude: CLLocationDegrees, longitude: CLLocationDegrees,
                         altitude: CLLocationDistance, layer: CALayer) -> LocationAnnotationNode {
@@ -805,7 +822,7 @@ extension POIViewController {
         let location = CLLocation(latitude: latitude, longitude: longitude)
         
 
-        let curLocation = self.sceneLocationView.sceneLocationManager.currentLocation
+        var curLocation = self.sceneLocationView.sceneLocationManager.currentLocation
                 
         
         print("---------------")
@@ -817,70 +834,122 @@ extension POIViewController {
         let bearing = calculateHeading(curLocation: curLocation!, targetLocation: location)
         self.userLocation = curLocation
         
-        if self.modelNode == nil {
-//            let modelScene = SCNScene(named: "art.scnassets/arrow.dae")!
-//            self.modelNode = modelScene.rootNode.childNode(withName: rooteNodeName, recursively: true)
-//            let (minBox, maxBox) = self.modelNode.boundingBox
-//            self.modelNode.pivot = SCNMatrix4MakeTranslation(0, (maxBox.y - minBox.y) / 2, 0)
-////
-//            let rotation = SCNMatrix4MakeRotation(Float(bearing + 90).toRadians(), 0, 1, 0)
-//            self.modelNode.transform = SCNMatrix4Mult(self.modelNode.transform, rotation)
-//
-//            self.modelNode.scale = SCNVector3(x: 0.001, y: 0.001, z: 0.001)
-//            self.originalTransform = self.modelNode.transform
-//
-////            positionModel(location)
-//
-//            sceneLocationView.scene.rootNode.addChildNode(self.modelNode)
-//            distance = 10.0
-            let arcDist = min(distance!, 400)
-            
-            let arcStartX = 0.5
-            let arcStartY = -0.5
-            let controlHeight = (arcDist / 2) * tan(35)
-            
-            
-            let path = UIBezierPath()
-            path.move(to: CGPoint(x: arcStartX, y: arcStartY))
-            path.addQuadCurve(to: CGPoint(x: arcStartX + arcDist, y: arcStartY), controlPoint: CGPoint(x: arcStartX + (arcDist / 2), y: controlHeight))
-            path.addLine(to: CGPoint(x: arcStartX + arcDist - 0.01, y: arcStartY))
-            path.addQuadCurve(to: CGPoint(x: arcStartX + 0.01, y: arcStartY), controlPoint: CGPoint(x: arcStartX + (arcDist / 2), y: controlHeight - 0.02))
-            path.close()
-
-            path.flatness = 0.0003
-
-            let shape = SCNShape(path: path, extrusionDepth: 0.000438596 * arcDist + 0.0245614)
-            let color = #colorLiteral(red: 1, green: 0.08143679053, blue: 0.3513627648, alpha: 0.8459555697)
-            shape.firstMaterial?.diffuse.contents = color
-    //        shape.chamferRadius = 0.1
-
-            let arcNode = SCNNode(geometry: shape)
-
-//            arcNode.position.z = -1
-//            arcNode.position.y = 0.5
-//            arcNode.position.x = 0.5
-//            arcNode.pivot = SCNMatrix4MakeTranslation(1, 0.2, 0)
-            self.modelNode = arcNode
-
-//            arcNode.eulerAngles.y = (.pi/2)
-            let rotation = SCNMatrix4MakeRotation(Float(bearing + 90).toRadians(), 0, 1, 0)
-            self.modelNode.transform = SCNMatrix4Mult(self.modelNode.transform, rotation)
-
-            self.originalTransform = self.modelNode.transform
-
-//            positionModel(location)
-            sceneLocationView.scene.rootNode.addChildNode(arcNode)
-            
-        } else {
-            SCNTransaction.begin()
-            SCNTransaction.animationDuration = 1.0
-            
-//            positionModel(location)
-            
-            SCNTransaction.commit()
-        }
         
+        var targetReached = false
+        let recommendedClub = chooseClub(dist: distance!)
+        let clubRange = clubs[recommendedClub]
         
+        var greenPoints: [GreenPoint] = []
+        for point in self.flag1_fairways {
+                    greenPoints.append(GreenPoint(lat: point.lat, lon: point.long, start: curLocation!, target: location))
+                }
+        
+        for point in self.flag1_greens {
+                    greenPoints.append(GreenPoint(lat: point.lat, lon: point.long, start: curLocation!, target: location))
+                }
+        
+        greenPoints.append(GreenPoint(lat: location.coordinate.latitude, lon: location.coordinate.longitude, start: curLocation!, target: location))
+
+                greenPoints = greenPoints.sorted(by: { $0.distToTarget < $1.distToTarget })
+
+
+                var chosenPoints: [GreenPoint] = []
+
+                var curPoint = GreenPoint(lat: curLocation!.coordinate.latitude, lon: curLocation!.coordinate.longitude, start: curLocation!, target: location)
+
+                var infiniteLoopCounter = 0
+
+                while (!targetReached) {
+                    if (curPoint.distToTarget <= Double(clubRange)){
+                        chosenPoints.append(GreenPoint(lat: location.coordinate.latitude, lon: location.coordinate.longitude, start: curLocation!, target: location))
+                        targetReached = true
+                    } else {
+                        for point in greenPoints {
+                            if (CLLocation(latitude: point.lat, longitude: point.lon).distance(from: CLLocation(latitude: curPoint.lat, longitude: curPoint.lon)) <= Double(clubRange)){
+                                chosenPoints.append(point)
+                                curPoint = point
+                                break
+                            }
+                        }
+                    }
+                    if (infiniteLoopCounter > 100){
+                        break
+                    }
+                    infiniteLoopCounter += 1
+                }
+        
+        print("*************************************")
+                for point in greenPoints {
+                    print(point.lat, point.lon)
+                    print(point.distToTarget)
+                    print(point.distFromStart)
+                }
+        
+        print(location.distance(from: curLocation!))
+                print(curLocation!.coordinate)
+                print("*************************************")
+
+                var arcStartX = 0.5
+                var arcStartY = -0.5
+                var parent = sceneLocationView.scene.rootNode
+
+
+                for point in chosenPoints {
+                    let location = CLLocation(latitude: point.lat, longitude: point.lon)
+
+                    print("---------------")
+
+                    let distance = curLocation?.distance(from: location)
+
+                    print(calculateHeading(curLocation: curLocation!, targetLocation: location))
+
+                    let bearing = calculateHeading(curLocation: curLocation!, targetLocation: location)
+                                self.userLocation = curLocation
+
+
+                                    let arcDist = min(distance!, 400)
+
+                                    let controlHeight = (arcDist / 2) * tan(35)
+
+
+                                    let path = UIBezierPath()
+                                    path.move(to: CGPoint(x: arcStartX, y: arcStartY))
+                                    path.addQuadCurve(to: CGPoint(x: arcStartX + arcDist, y: arcStartY), controlPoint: CGPoint(x: arcStartX + (arcDist / 2), y: controlHeight))
+                                    path.addLine(to: CGPoint(x: arcStartX + arcDist - 0.01, y: arcStartY))
+                                    path.addQuadCurve(to: CGPoint(x: arcStartX + 0.01, y: arcStartY), controlPoint: CGPoint(x: arcStartX + (arcDist / 2), y: controlHeight - 0.02))
+                                    path.close()
+
+                                    path.flatness = 0.0003
+
+                                    let shape = SCNShape(path: path, extrusionDepth: 0.000438596 * arcDist + 0.0245614)
+                                    let color = #colorLiteral(red: 1, green: 0.08143679053, blue: 0.3513627648, alpha: 0.8459555697)
+                                    shape.firstMaterial?.diffuse.contents = color
+                            //        shape.chamferRadius = 0.1
+
+                                    let arcNode = SCNNode(geometry: shape)
+                    
+                    self.modelNode = arcNode
+
+                        //            arcNode.eulerAngles.y = (.pi/2)
+
+                                    let rotation = SCNMatrix4MakeRotation(Float(bearing + 90).toRadians(), 0, 1, 0)
+                                    self.modelNode.transform = SCNMatrix4Mult(self.modelNode.transform, rotation)
+
+                                    self.originalTransform = self.modelNode.transform
+
+                        //            positionModel(location)
+                                    parent.addChildNode(arcNode)
+
+                    //            print(sceneLocationView.pointOfView?.simdWorldPosition)
+                                    
+                                curLocation = location
+                                arcStartX = arcStartX + arcDist
+                                parent = arcNode
+
+                                print(arcNode.simdTransform)
+                                break;
+                            }
+
     }
 
 }
