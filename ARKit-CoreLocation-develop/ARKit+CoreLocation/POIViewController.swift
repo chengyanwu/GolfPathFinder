@@ -61,6 +61,8 @@ class POIViewController: UIViewController {
         }
     }
     
+    var clubs: [Int] = [250, 200, 150, 100, 50]
+    
     var modelNode:SCNNode!
     let rooteNodeName = "Object-1"
     var originalTransform:SCNMatrix4!
@@ -295,6 +297,22 @@ extension POIViewController {
 //        let
 //    }
     
+    func chooseClub(dist: Double) -> Int{
+        self.clubs.sort(by: >)
+        
+        if (Double(clubs[0]) < dist) {
+            return 0
+        }
+        var curClub = 0
+        for (i, club) in clubs.enumerated() {
+            if (Double(club) < dist){
+                return i
+            }
+            curClub = i
+        }
+        return curClub
+    }
+    
     func calculateHeading(curLocation: CLLocation, targetLocation: CLLocation) -> Float {
         let curLat = curLocation.coordinate.latitude
         let curLon = curLocation.coordinate.longitude
@@ -394,18 +412,19 @@ extension POIViewController {
 //            SCNTransaction.commit()
 //        }
         
-        self.flag1_coor = coor(lat: 34.414583, long: -119.842978)
-        self.flag1_greens = []
-        self.flag1_fairways = []
-        self.flag1_greens.append(coor(lat: 34.413327, long: -119.844547))
-        self.flag1_greens.append(coor(lat: 34.413588, long: -119.844493))
-        self.flag1_greens.append(coor(lat: 34.413917, long: -119.844309))
-        self.flag1_greens.append(coor(lat: 34.414354, long: -119.843858))
-        self.flag1_greens.append(coor(lat: 34.414211, long: -119.844226))
-        self.flag1_greens.append(coor(lat: 34.414347, long: -119.843415))
+//        self.flag1_coor = coor(lat: 34.414583, long: -119.842978)
+//        self.flag1_greens = []
+//        self.flag1_fairways = []
+//        self.flag1_greens.append(coor(lat: 34.413327, long: -119.844547))
+//        self.flag1_greens.append(coor(lat: 34.413588, long: -119.844493))
+//        self.flag1_greens.append(coor(lat: 34.413917, long: -119.844309))
+//        self.flag1_greens.append(coor(lat: 34.414354, long: -119.843858))
+//        self.flag1_greens.append(coor(lat: 34.414211, long: -119.844226))
+//        self.flag1_greens.append(coor(lat: 34.414347, long: -119.843415))
 
         var targetReached = false
-        let clubRange = 100
+        let recommendedClub = chooseClub(dist: distance!)
+        let clubRange = clubs[recommendedClub]
         
         var greenPoints: [GreenPoint] = []
         
@@ -416,6 +435,8 @@ extension POIViewController {
         for point in self.flag1_greens {
             greenPoints.append(GreenPoint(lat: point.lat, lon: point.long, start: curLocation!, target: location))
         }
+        
+        greenPoints.append(GreenPoint(lat: location.coordinate.latitude, lon: location.coordinate.longitude, start: curLocation!, target: location))
         
         greenPoints = greenPoints.sorted(by: { $0.distToTarget < $1.distToTarget })
         
@@ -446,7 +467,7 @@ extension POIViewController {
         }
         
         print("*************************************")
-        for point in chosenPoints {
+        for point in greenPoints {
             print(point.lat, point.lon)
             print(point.distToTarget)
             print(point.distFromStart)
@@ -457,6 +478,8 @@ extension POIViewController {
         
         var arcStartX = 0.5
         var arcStartY = -0.5
+        var parent = sceneLocationView.scene.rootNode
+        
         
         for point in chosenPoints {
             let location = CLLocation(latitude: point.lat, longitude: point.lon)
@@ -510,10 +533,16 @@ extension POIViewController {
 
     //            positionModel(location)
 
-                sceneLocationView.scene.rootNode.addChildNode(arcNode)
+                parent.addChildNode(arcNode)
+            
+//            print(sceneLocationView.pointOfView?.simdWorldPosition)
                 
             curLocation = location
             arcStartX = arcStartX + arcDist
+            parent = arcNode
+            
+            print(arcNode.simdTransform)
+            break;
         }
     }
     
