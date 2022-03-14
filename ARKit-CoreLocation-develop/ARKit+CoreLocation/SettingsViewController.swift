@@ -14,7 +14,6 @@ import UIKit
 class SettingsViewController: UIViewController {
 
     @IBOutlet weak var showMapSwitch: UISwitch!
-    @IBOutlet weak var showVoiceSwitch: UISwitch!
     @IBOutlet weak var searchResultTable: UITableView!
     @IBOutlet weak var refreshControl: UIActivityIndicatorView!
     
@@ -51,16 +50,6 @@ class SettingsViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         navigationController?.setNavigationBarHidden(true, animated: animated)
-    }
-    
-    @IBAction
-    func toggledSwitch(_ sender: UISwitch) {
-//        if(sender.isOn){
-//            print("Activate")
-//        }else{
-//            print("Deactivate")
-//        }
-//        sender.isOn = !sender.isOn
     }
     
         
