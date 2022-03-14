@@ -23,6 +23,10 @@ class POIViewController: UIViewController {
     @IBOutlet weak var nodePositionLabel: UILabel!
 
     @IBOutlet weak var resetButton: UIButton!
+    let vc = SettingsViewController()
+    func updateClubArray(){
+        var arr = vc.clubArray
+    }
     @IBAction func onTappedReset(_ sender: UIButton) {
         
         

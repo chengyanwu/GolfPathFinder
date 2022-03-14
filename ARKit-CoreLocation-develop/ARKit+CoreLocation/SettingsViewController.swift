@@ -20,8 +20,15 @@ class SettingsViewController: UIViewController {
     
     
     @IBOutlet weak var clubRangeField: UITextField!
+    var clubArray = [String?]()
     @IBAction func enterTapped(_ sender: Any) {
         //print(clubRangeField.text)
+        clubArray.append(clubRangeField.text)
+        clubArray.append(clubRangeField2.text)
+        clubArray.append(clubRangeField3.text)
+        clubArray.append(clubRangeField4.text)
+        clubArray.append(clubRangeField5.text)
+        print(clubArray)
         self.view.endEditing(true)
     }
     
@@ -29,6 +36,9 @@ class SettingsViewController: UIViewController {
     @IBOutlet weak var clubRangeField3: UITextField!
     @IBOutlet weak var clubRangeField4: UITextField!
     @IBOutlet weak var clubRangeField5: UITextField!
+    
+   
+    
     var locationManager = CLLocationManager()
 
     override func viewDidLoad() {
