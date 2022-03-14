@@ -380,6 +380,7 @@ extension POIViewController {
         let urlString_flag = "https://api.golfbert.com/v1/courses/1593/holes"
         let urlString_polygon1 = "https://api.golfbert.com/v1/holes/67111/polygons"
         let urlString_polygon2 = "https://api.golfbert.com/v1/holes/67112/polygons"
+        let urlString_polygon3 = "https://api.golfbert.com/v1/holes/67113/polygons"
         
         var urlRequest = URLRequest(url:URL(string: urlString_flag)!)
         urlRequest.httpMethod = "GET"
@@ -400,17 +401,17 @@ extension POIViewController {
             self.flag1_coor.lat = json.resources[0].flagcoords.lat
             self.flag1_coor.long = json.resources[0].flagcoords.long
             
-//            flag2_coor.lat = json.resources[1].flagcoords.lat
-//            flag2_coor.long = json.resources[1].flagcoords.long
-//
-//            flag3_coor.lat = json.resources[2].flagcoords.lat
-//            flag3_coor.long = json.resources[2].flagcoords.long
-//
+            self.flag2_coor.lat = json.resources[1].flagcoords.lat
+            self.flag2_coor.long = json.resources[1].flagcoords.long
+
+            self.flag3_coor.lat = json.resources[2].flagcoords.lat
+            self.flag3_coor.long = json.resources[2].flagcoords.long
+
 //            flag4_lat = json.resources[3].flagcoords.lat
 //            flag4_long = json.resources[3].flagcoords.long
             
 
-            print(self.flag1_coor)
+//            print(self.flag1_coor)
             
             
             print("leaving url session 1")
@@ -433,28 +434,28 @@ extension POIViewController {
             var long = 0.0
             var count = 0.0
             var coor_tmp = coor()
-//            for resource in json.resources{
-//                if(resource.surfacetype == Surfacetype.sand){
-//                    for poly in resource.polygon{
-//                        lat += poly.lat
-//                        long += poly.long
-//                        count += 1
-//                    }
-//                    coor_tmp.lat = lat / count
-//                    coor_tmp.long = long / count
-//                    flag1_bunkers.append(coor_tmp)
-//                }
-//            }
+            for resource in json.resources{
+                if(resource.surfacetype == Surfacetype.sand){
+                    for poly in resource.polygon{
+                        lat += poly.lat
+                        long += poly.long
+                        count += 1
+                    }
+                    coor_tmp.lat = lat / count
+                    coor_tmp.long = long / count
+                    self.flag1_bunkers.append(coor_tmp)
+                }
+            }
             for poly in json.resources[0].polygon{
                 self.flag1_greens.append(coor(lat: poly.lat, long: poly.long))
             }
             for poly in json.resources[1].polygon{
                 self.flag1_fairways.append(coor(lat: poly.lat, long: poly.long))
             }
-            self.flag1_bunkers.append(coor(lat: 34.383622, long: -119.817028))
-            self.flag1_bunkers.append(coor(lat: 34.376743, long: -119.851897))
-            self.flag1_bunkers.append(coor(lat: 34.375485, long: -119.890519))
-            self.flag1_bunkers.append(coor(lat: 34.395056, long: -119.934223))
+//            self.flag1_bunkers.append(coor(lat: 34.383622, long: -119.817028))
+//            self.flag1_bunkers.append(coor(lat: 34.376743, long: -119.851897))
+//            self.flag1_bunkers.append(coor(lat: 34.375485, long: -119.890519))
+//            self.flag1_bunkers.append(coor(lat: 34.395056, long: -119.934223))
             
             print(self.flag1_bunkers)
             
@@ -506,8 +507,54 @@ extension POIViewController {
 
         }).resume()
         
+        
+        var urlRequest4 = URLRequest(url:URL(string: urlString_polygon3)!)
+        urlRequest4.httpMethod = "GET"
+        urlRequest4.addValue(API_token, forHTTPHeaderField: "x-api-key")
+        urlRequest4.addValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
+        try! urlRequest4.sign(accessKeyId: access_key, secretAccessKey: secret_key)
+        
+        group.enter()
+        let task4 = URLSession.shared.dataTask(with: urlRequest4, completionHandler:{
+            (data: Data!, response: URLResponse!, error: Error!) -> Void in
+            print("enterning url session 4")
+            let json = try! JSONDecoder().decode(JSONPoly.self, from:data)
+            
+            var lat = 0.0
+            var long = 0.0
+            var count = 0.0
+            var coor_tmp = coor()
+            for resource in json.resources{
+                if(resource.surfacetype == Surfacetype.sand){
+                    for poly in resource.polygon{
+                        lat += poly.lat
+                        long += poly.long
+                        count += 1
+                    }
+                    coor_tmp.lat = lat / count
+                    coor_tmp.long = long / count
+                    self.flag3_bunkers.append(coor_tmp)
+                }
+            }
+            
+            for poly in json.resources[0].polygon{
+                self.flag3_greens.append(coor(lat: poly.lat, long: poly.long))
+            }
+            for poly in json.resources[1].polygon{
+                self.flag3_fairways.append(coor(lat: poly.lat, long: poly.long))
+            }
+            
+//            print(self.flag3_bunkers)
+            
+            group.leave()
+            print("leaving url session 4")
+
+        }).resume()
+        
+        
         group.wait()
         print("All url session ended")
+    
     }
     
     /// Builds the location annotations for a few random objects, scattered across the country
