@@ -69,7 +69,7 @@ class ARCLViewController: UIViewController {
         newSceneLocationView.locationEstimateMethod = locationEstimateMethod
 
         newSceneLocationView.debugOptions = [.showWorldOrigin]
-        newSceneLocationView.showsStatistics = true
+        newSceneLocationView.showsStatistics = false
         newSceneLocationView.showAxesNode = false // don't need ARCL's axesNode because we're showing SceneKit's
         newSceneLocationView.autoenablesDefaultLighting = true
         contentView.addSubview(newSceneLocationView)

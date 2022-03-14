@@ -4,8 +4,8 @@ import NaturalLanguage
 import Speech
 
 let options = ["Wait!",
-               "switch Hole One", "switch Hole Two", "switch Hole Three",
-               "Show Flag", "Hide Flag", "Hide Hole Three",
+               "Hole One", "Hole Two", "Hole Three",
+               "Show Flag", "Hide Flag", "refresh Arc",
                "Show Bunker", "Hide Bunker",
                "Show Path", "Hide Path",
                "Please say again!"]

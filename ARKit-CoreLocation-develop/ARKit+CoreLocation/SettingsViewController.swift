@@ -55,7 +55,12 @@ class SettingsViewController: UIViewController {
     
     @IBAction
     func toggledSwitch(_ sender: UISwitch) {
-        
+//        if(sender.isOn){
+//            print("Activate")
+//        }else{
+//            print("Deactivate")
+//        }
+//        sender.isOn = !sender.isOn
     }
     
         

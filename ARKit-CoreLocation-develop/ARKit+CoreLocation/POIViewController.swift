@@ -13,6 +13,8 @@ import SceneKit
 import UIKit
 import CryptoSwift
 import CoreLocation
+import SwiftUI
+
 //import AwsSign
 
 @available(iOS 11.0, *)
@@ -21,12 +23,7 @@ class POIViewController: UIViewController {
     @IBOutlet var mapView: MKMapView!
     @IBOutlet var infoLabel: UILabel!
     @IBOutlet weak var nodePositionLabel: UILabel!
-
-    @IBOutlet weak var resetButton: UIButton!
-    @IBAction func onTappedReset(_ sender: UIButton) {
-        
-        
-    }
+    
     @IBOutlet var contentView: UIView!
     let sceneLocationView = SceneLocationView()
 
@@ -48,7 +45,15 @@ class POIViewController: UIViewController {
         }
     }
     
-
+//    @IBAction func toggleVoiceCommand(_ sender: UISwitch) {
+//        if sender.isOn{
+//            print("Voice Command Activated")
+//        }else{
+//            print("Voice Command Deactivated")
+//        }
+//        sender.isOn = !sender.isOn
+//    }
+    
     /// Whether to display some debugging data
     /// This currently displays the coordinate of the best location estimate
     /// The initial value is respected
@@ -74,7 +79,103 @@ class POIViewController: UIViewController {
     var originalTransform:SCNMatrix4!
     
     var userLocation:CLLocation!
-
+    
+    /// storing golf course coordinates from API call
+    var flag1_coor = coor()
+    var flag1_bunkers: [coor] = []
+    var flag1_greens: [coor] = []
+    var flag1_fairways: [coor] = []
+    
+    var flag2_coor = coor(lat: 34.413367, long: -119.844813)
+    var flag2_bunkers: [coor] = []
+    var flag2_greens: [coor] = []
+    var flag2_fairways: [coor] = []
+    
+    var flag3_coor = coor(lat: 34.404868, long: -119.844519)
+    var flag3_bunkers: [coor] = []
+    var flag3_greens: [coor] = []
+    var flag3_fairways: [coor] = []
+    
+    var flag4_coor = coor(lat: 34.428259, long: -119.850368)
+    var flag4_bunkers: [coor] = []
+    var flag4_greens: [coor] = []
+    var flag4_fairways: [coor] = []
+    
+    var asr = ASR()
+    var action1 = 0
+    var action2 = 0
+    var action3 = 0
+    var score1 = 0.0
+    var score2 = 0.0
+    var score3 = 0.0
+    
+    var holeNumber = 1
+    var flagOn = true
+    var bunkerOn = true
+    var pathOn = true
+        
+    @IBOutlet weak var VoiceCommandStatus: UILabel!
+    
+    @IBOutlet weak var VoiceCommandSwitch: UISwitch!
+    
+    @IBAction func toggleVoiceCommand(_ sender: UISwitch) {
+        if !sender.isOn{
+            
+            (action1, score1, action2, score2, action3, score3) = asr.toggle()
+            print(options[action1])
+            print(score1)
+            switch options[action1]{
+            case "Hole One":
+                VoiceCommandStatus.text = "Switching to Hole #1"
+                holeNumber = 1
+            case "Hole Two":
+                VoiceCommandStatus.text = "Switching to Hole #2"
+                holeNumber = 2
+            case "Hole Three":
+                VoiceCommandStatus.text = "Switching to Hole #3"
+                holeNumber = 3
+            case "Show Flag":
+                flagOn = true
+                VoiceCommandStatus.text = "Showing the Flag"
+            case "Hide Flag":
+                flagOn = false
+                VoiceCommandStatus.text = "Hiding the Flag"
+            case "refresh Arc":
+                restartAnimation()
+                VoiceCommandStatus.text = "Refreshing the Arc"
+            case "Show Bunker":
+                bunkerOn = true
+                VoiceCommandStatus.text = "Showing the Bunkers"
+            case "Hide Bunker":
+                bunkerOn = false
+                VoiceCommandStatus.text = "Hiding the Bunkers"
+            case "Show Path":
+                pathOn = true
+                VoiceCommandStatus.text = "Showing the Path"
+            case "Hide Path":
+                pathOn = false
+                VoiceCommandStatus.text = "Hiding the Path"
+            default:
+                print("Not a valid word")
+                VoiceCommandStatus.text = "Please Say Again"
+            }
+            print("----Stop Listening----")
+//            buildDemoData().forEach {
+//                sceneLocationView.addLocationNodeWithConfirmedLocation(locationNode: $0)
+//            }
+//            sceneLocationView.locationNodes = nil
+//            sceneLocationView.sceneNode = nil
+            sceneLocationView.removeAllNodes()
+            addSceneModels()
+        }else{
+            print("----Listening----")
+            VoiceCommandStatus.text = "Listening..."
+//            pauseAnimation()
+            (action1, score1, action2, score2, action3, score3) = asr.toggle()
+//            print(action1)
+        }
+    }
+    
     class func loadFromStoryboard() -> POIViewController {
         return UIStoryboard(name: "Main", bundle: nil)
             .instantiateViewController(withIdentifier: "ARCLViewController") as! POIViewController
@@ -83,6 +184,16 @@ class POIViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        VoiceCommandStatus.text = "Voice Command Switch"
+        VoiceCommandStatus.backgroundColor = #colorLiteral(red: 1, green: 1, blue: 1, alpha: 1)
+        VoiceCommandStatus.textColor = #colorLiteral(red: 0.2549019754, green: 0.2745098174, blue: 0.3019607961, alpha: 1)
+        VoiceCommandSwitch.isOn = false
+        
+        VoiceCommandSwitch.addTarget(self, action: #selector(self.toggleVoiceCommand(_:)), for: .valueChanged)
+        
+        // Get coordinates from the API
+        APICall()
 
         // swiftlint:disable:next discarded_notification_center_observer
         NotificationCenter.default.addObserver(forName: UIApplication.willResignActiveNotification,
@@ -97,9 +208,9 @@ class POIViewController: UIViewController {
                                                 self?.restartAnimation()
         }
 
-        updateInfoLabelTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { [weak self] _ in
-            self?.updateInfoLabel()
-        }
+//        updateInfoLabelTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { [weak self] _ in
+//            self?.updateInfoLabel()
+//        }
 
         // Set to true to display an arrow which points north.
         // Checkout the comments in the property description and on the readme on this.
@@ -108,11 +219,11 @@ class POIViewController: UIViewController {
 
         sceneLocationView.showAxesNode = true
         sceneLocationView.showFeaturePoints = displayDebugging
-        sceneLocationView.locationNodeTouchDelegate = self
+//        sceneLocationView.locationNodeTouchDelegate = self
 //        sceneLocationView.delegate = self // Causes an assertionFailure - use the `arViewDelegate` instead:
         sceneLocationView.arViewDelegate = self
-        sceneLocationView.locationNodeTouchDelegate = self
-
+//        sceneLocationView.locationNodeTouchDelegate = self
+        
         // Now add the route or location annotations as appropriate
         addSceneModels()
 
@@ -128,9 +239,20 @@ class POIViewController: UIViewController {
 
             routes?.forEach { mapView.addOverlay($0.polyline) }
         }
+        
+        
     }
 
     override func viewWillAppear(_ animated: Bool) {
+        
+//        if(VoiceCommandSwitch.isOn){
+//            print("Activated")
+//            (action1, score1, action2, score2, action3, score3) = asr.toggle()
+//
+//        }else{
+//            print("Deactivated")
+//        }
+        
         super.viewWillAppear(animated)
         navigationController?.setNavigationBarHidden(false, animated: animated)
         restartAnimation()
@@ -156,36 +278,10 @@ class POIViewController: UIViewController {
         super.viewDidLayoutSubviews()
         sceneLocationView.frame = contentView.bounds
     }
-
-    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        super.touchesBegan(touches, with: event)
-        guard let touch = touches.first,
-            let view = touch.view else { return }
-
-        if mapView == view || mapView.recursiveSubviews().contains(view) {
-            centerMapOnUserLocation = false
-        } else {
-            let location = touch.location(in: self.view)
-
-            if location.x <= 40 && adjustNorthByTappingSidesOfScreen {
-                print("left side of the screen")
-                sceneLocationView.moveSceneHeadingAntiClockwise()
-            } else if location.x >= view.frame.size.width - 40 && adjustNorthByTappingSidesOfScreen {
-                print("right side of the screen")
-                sceneLocationView.moveSceneHeadingClockwise()
-            } else if addNodeByTappingScreen {
-                let image = UIImage(named: "pin")!
-                let annotationNode = LocationAnnotationNode(location: nil, image: image)
-                annotationNode.scaleRelativeToDistance = false
-                annotationNode.scalingScheme = .normal
-                DispatchQueue.main.async {
-                    // If we're using the touch delegate, adding a new node in the touch handler sometimes causes a freeze.
-                    // So defer to next pass.
-                    self.sceneLocationView.addLocationNodeForCurrentPosition(locationNode: annotationNode)
-                }
-            }
-        }
-    }
+  
+    
+    
+    
 }
 
 // MARK: - MKMapViewDelegate
@@ -276,16 +372,11 @@ extension POIViewController {
         var long = 0.0
     }
     
-    /// Builds the location annotations for a few random objects, scattered across the country
-    ///
-    /// - Returns: an array of annotation nodes.
-    func buildDemoData() -> [LocationAnnotationNode] {
-        
+    func APICall(){
         let API_token = "WgB5mUDvCh94P5JGMjoPI2on3vnK7TVh8GOrQDvx"
         let access_key = "AKIAY4WGH3URFU3AQXC3"
         let secret_key = "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"
         
-//        let urlString = "https://api.golfbert.com/v1/courses"
         let urlString_flag = "https://api.golfbert.com/v1/courses/1593/holes"
         let urlString_polygon1 = "https://api.golfbert.com/v1/holes/67111/polygons"
         let urlString_polygon2 = "https://api.golfbert.com/v1/holes/67112/polygons"
@@ -297,26 +388,6 @@ extension POIViewController {
         
         try! urlRequest.sign(accessKeyId: access_key, secretAccessKey: secret_key)
         
-        var flag1_coor = coor()
-        var flag1_bunkers: [coor] = []
-        var flag1_greens: [coor] = []
-        var flag1_fairways: [coor] = []
-        
-        var flag2_coor = coor(lat: 34.413367, long: -119.844813)
-        var flag2_bunkers: [coor] = []
-        var flag2_greens: [coor] = []
-        var flag2_fairways: [coor] = []
-        
-        var flag3_coor = coor(lat: 34.404868, long: -119.844519)
-        var flag3_bunkers: [coor] = []
-        var flag3_greens: [coor] = []
-        var flag3_fairways: [coor] = []
-        
-        var flag4_coor = coor(lat: 34.428259, long: -119.850368)
-        var flag4_bunkers: [coor] = []
-        var flag4_greens: [coor] = []
-        var flag4_fairways: [coor] = []
-        
         let group = DispatchGroup()
         group.enter()
         let task1 = URLSession.shared.dataTask(with: urlRequest, completionHandler:{
@@ -326,8 +397,8 @@ extension POIViewController {
             let json = try! JSONDecoder().decode(JSON_Flag.self, from:data)
             
             
-            flag1_coor.lat = json.resources[0].flagcoords.lat
-            flag1_coor.long = json.resources[0].flagcoords.long
+            self.flag1_coor.lat = json.resources[0].flagcoords.lat
+            self.flag1_coor.long = json.resources[0].flagcoords.long
             
 //            flag2_coor.lat = json.resources[1].flagcoords.lat
 //            flag2_coor.long = json.resources[1].flagcoords.long
@@ -339,7 +410,7 @@ extension POIViewController {
 //            flag4_long = json.resources[3].flagcoords.long
             
 
-            print(flag1_coor)
+            print(self.flag1_coor)
             
             
             print("leaving url session 1")
@@ -375,17 +446,17 @@ extension POIViewController {
 //                }
 //            }
             for poly in json.resources[0].polygon{
-                flag1_greens.append(coor(lat: poly.lat, long: poly.long))
+                self.flag1_greens.append(coor(lat: poly.lat, long: poly.long))
             }
             for poly in json.resources[1].polygon{
-                flag1_fairways.append(coor(lat: poly.lat, long: poly.long))
+                self.flag1_fairways.append(coor(lat: poly.lat, long: poly.long))
             }
-            flag1_bunkers.append(coor(lat: 34.383622, long: -119.817028))
-            flag1_bunkers.append(coor(lat: 34.376743, long: -119.851897))
-            flag1_bunkers.append(coor(lat: 34.375485, long: -119.890519))
-            flag1_bunkers.append(coor(lat: 34.395056, long: -119.934223))
+            self.flag1_bunkers.append(coor(lat: 34.383622, long: -119.817028))
+            self.flag1_bunkers.append(coor(lat: 34.376743, long: -119.851897))
+            self.flag1_bunkers.append(coor(lat: 34.375485, long: -119.890519))
+            self.flag1_bunkers.append(coor(lat: 34.395056, long: -119.934223))
             
-            print(flag1_bunkers)
+            print(self.flag1_bunkers)
             
             group.leave()
             print("leaving url session 2")
@@ -417,18 +488,18 @@ extension POIViewController {
                     }
                     coor_tmp.lat = lat / count
                     coor_tmp.long = long / count
-                    flag2_bunkers.append(coor_tmp)
+                    self.flag2_bunkers.append(coor_tmp)
                 }
             }
             
             for poly in json.resources[0].polygon{
-                flag2_greens.append(coor(lat: poly.lat, long: poly.long))
+                self.flag2_greens.append(coor(lat: poly.lat, long: poly.long))
             }
             for poly in json.resources[1].polygon{
-                flag2_fairways.append(coor(lat: poly.lat, long: poly.long))
+                self.flag2_fairways.append(coor(lat: poly.lat, long: poly.long))
             }
             
-            print(flag2_bunkers)
+            print(self.flag2_bunkers)
             
             group.leave()
             print("leaving url session 3")
@@ -437,134 +508,164 @@ extension POIViewController {
         
         group.wait()
         print("All url session ended")
+    }
+    
+    /// Builds the location annotations for a few random objects, scattered across the country
+    ///
+    /// - Returns: an array of annotation nodes.
+    func buildDemoData() -> [LocationAnnotationNode] {
+        
+        print("-----Building Nodes-----")
+        print("Flag On: \(flagOn)")
+        print("Bunker On: \(bunkerOn)")
+        print("Path On: \(pathOn)")
         
         
         // Initilaizing LAN List
         var nodes: [LocationAnnotationNode] = []
         var layers: [CATextLayer] = []
-        
-        // Creating template for distance-text overlay template
-        let distance_layer = CATextLayer()
-        distance_layer.frame = CGRect(x: 0, y: 0, width: 200, height: 40)
-        distance_layer.cornerRadius = 4
-        distance_layer.fontSize = 14
-        distance_layer.alignmentMode = .center
-        distance_layer.foregroundColor = UIColor.black.cgColor
-        distance_layer.backgroundColor = UIColor.white.cgColor
-
-        
-        // Creating Hole 1 Node
-        let hole1Layer = CATextLayer()
-        hole1Layer.frame = CGRect(x: 0, y: 0, width: 200, height: 40)
-        hole1Layer.cornerRadius = 4
-        hole1Layer.fontSize = 14
-        hole1Layer.alignmentMode = .center
-        hole1Layer.foregroundColor = UIColor.black.cgColor
-        hole1Layer.backgroundColor = UIColor.white.cgColor
-        _ = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
-            let location1 = self.sceneLocationView.sceneLocationManager.currentLocation
-            let location2 = CLLocation(latitude: flag1_coor.lat, longitude: flag1_coor.long)
-            let distanceInMeters = location1!.distance(from:location2)
-            hole1Layer.string = String(format: "Flag 1\nDistance: %.1fm", distanceInMeters)
-        }
-        layers.append(hole1Layer)
-        var hole1 = buildLayerNode(latitude: flag1_coor.lat, longitude: flag1_coor.long, altitude: 20, layer: hole1Layer)
-        nodes.append(hole1)
-        hole1 = buildNode(latitude: flag1_coor.lat, longitude: flag1_coor.long, altitude: 200, imageName: "flag1")
-        nodes.append(hole1)
-        
-        for (idx, bunker) in flag1_bunkers.enumerated(){
-            let layer = CATextLayer()
-            layer.frame = CGRect(x: 0, y: 0, width: 200, height: 40)
-            layer.cornerRadius = 4
-            layer.fontSize = 14
-            layer.alignmentMode = .center
-            layer.foregroundColor = UIColor.black.cgColor
-            layer.backgroundColor = UIColor.white.cgColor
-            let time = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
-                let location1 = self.sceneLocationView.sceneLocationManager.currentLocation
-                let location2 = CLLocation(latitude: bunker.lat, longitude: bunker.long)
-                let distanceInMeters = location1!.distance(from:location2)
-                layer.string = String(format: "Bunker \(idx)\nDistance: %.1fm", distanceInMeters)
+        switch holeNumber{
+        case 1:
+            // Creating Hole 1 Node
+            let hole1Layer = CATextLayer()
+            hole1Layer.frame = CGRect(x: 0, y: 0, width: 200, height: 40)
+            hole1Layer.cornerRadius = 4
+            hole1Layer.fontSize = 14
+            hole1Layer.alignmentMode = .center
+            hole1Layer.foregroundColor = UIColor.black.cgColor
+            hole1Layer.backgroundColor = UIColor.white.cgColor
+            
+            var hole1 = buildLayerNode(latitude: self.flag1_coor.lat, longitude: self.flag1_coor.long, altitude: 20, layer: hole1Layer)
+            if(flagOn){
+                _ = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
+                    let location1 = self.sceneLocationView.sceneLocationManager.currentLocation
+                    let location2 = CLLocation(latitude: self.flag1_coor.lat, longitude: self.flag1_coor.long)
+                    let distanceInMeters = location1!.distance(from:location2)
+                    hole1Layer.string = String(format: "Flag 1\nDistance: %.1fm", distanceInMeters)
+                }
+                layers.append(hole1Layer)
+//                var hole1 = buildLayerNode(latitude: self.flag1_coor.lat, longitude: self.flag1_coor.long, altitude: 20, layer: hole1Layer)
+                nodes.append(hole1)
+                hole1 = buildNode(latitude: flag1_coor.lat, longitude: flag1_coor.long, altitude: 200, imageName: "flag1")
+                nodes.append(hole1)
             }
-            layers.append(layer)
-            hole1 = buildLayerNode(latitude: bunker.lat, longitude: bunker.long, altitude: 20, layer: layer)
-            nodes.append(hole1)
-            hole1 = buildNode(latitude: bunker.lat, longitude: bunker.long, altitude: 100, imageName: "bunker")
-            nodes.append(hole1)
+            if(bunkerOn){
+                for (idx, bunker) in flag1_bunkers.enumerated(){
+                    let layer = CATextLayer()
+                    layer.frame = CGRect(x: 0, y: 0, width: 200, height: 40)
+                    layer.cornerRadius = 4
+                    layer.fontSize = 14
+                    layer.alignmentMode = .center
+                    layer.foregroundColor = UIColor.black.cgColor
+                    layer.backgroundColor = UIColor.white.cgColor
+                    let time = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
+                        let location1 = self.sceneLocationView.sceneLocationManager.currentLocation
+                        let location2 = CLLocation(latitude: bunker.lat, longitude: bunker.long)
+                        let distanceInMeters = location1!.distance(from:location2)
+                        layer.string = String(format: "Bunker \(idx)\nDistance: %.1fm", distanceInMeters)
+                    }
+                    layers.append(layer)
+                    hole1 = buildLayerNode(latitude: bunker.lat, longitude: bunker.long, altitude: 20, layer: layer)
+                    nodes.append(hole1)
+                    hole1 = buildNode(latitude: bunker.lat, longitude: bunker.long, altitude: 100, imageName: "bunker")
+                    nodes.append(hole1)
+                }
+            }
+                
+        
+            updateArcLocation(latitude: flag1_coor.lat, longitude: flag1_coor.long, altitude: 20)
+        case 2:
+            // Creating Hole 2 Node
+            let hole2Layer = CATextLayer()
+            hole2Layer.frame = CGRect(x: 0, y: 0, width: 200, height: 40)
+            hole2Layer.cornerRadius = 4
+            hole2Layer.fontSize = 14
+            hole2Layer.alignmentMode = .center
+            hole2Layer.foregroundColor = UIColor.black.cgColor
+            hole2Layer.backgroundColor = UIColor.white.cgColor
+    
+            _ = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
+                let location1 = self.sceneLocationView.sceneLocationManager.currentLocation
+                let location2 = CLLocation(latitude: self.flag2_coor.lat, longitude: self.flag2_coor.long)
+                let distanceInMeters = location1!.distance(from:location2)
+                hole2Layer.string = String(format: "Flag 2\nDistance: %.1fm", distanceInMeters)
+            }
+            var hole2 = buildLayerNode(latitude: self.flag2_coor.lat, longitude: self.flag2_coor.long, altitude: 10, layer: hole2Layer)
+            layers.append(hole2Layer)
+            nodes.append(hole2)
+            hole2 = buildNode(latitude: self.flag2_coor.lat, longitude: self.flag2_coor.long, altitude: 10, imageName: "flag2")
+            nodes.append(hole2)
+    
+            for (idx, bunker) in self.flag2_bunkers.enumerated(){
+                let layer = CATextLayer()
+                layer.frame = CGRect(x: 0, y: 0, width: 200, height: 40)
+                layer.cornerRadius = 4
+                layer.fontSize = 14
+                layer.alignmentMode = .center
+                layer.foregroundColor = UIColor.black.cgColor
+                layer.backgroundColor = UIColor.white.cgColor
+                let time = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
+                    let location1 = self.sceneLocationView.sceneLocationManager.currentLocation
+                    let location2 = CLLocation(latitude: bunker.lat, longitude: bunker.long)
+                    let distanceInMeters = location1!.distance(from:location2)
+                    layer.string = String(format: "Bunker \(idx)\nDistance: %.1fm", distanceInMeters)
+                }
+                layers.append(layer)
+                hole2 = buildLayerNode(latitude: bunker.lat, longitude: bunker.long, altitude: 20, layer: layer)
+                nodes.append(hole2)
+            }
+        case 3:
+        // Creating Hole 3 Node
+            let hole3Layer = CATextLayer()
+            hole3Layer.frame = CGRect(x: 0, y: 0, width: 200, height: 40)
+            hole3Layer.cornerRadius = 4
+            hole3Layer.fontSize = 14
+            hole3Layer.alignmentMode = .center
+            hole3Layer.foregroundColor = UIColor.black.cgColor
+            hole3Layer.backgroundColor = UIColor.white.cgColor
+            _ = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
+                let location1 = self.sceneLocationView.sceneLocationManager.currentLocation
+                let location2 = CLLocation(latitude: self.flag3_coor.lat, longitude: self.flag3_coor.long)
+                let distanceInMeters = location1!.distance(from:location2)
+                hole3Layer.string = String(format: "Flag 2\nDistance: %.1fm", distanceInMeters)
+            }
+            var hole3 = buildLayerNode(latitude: flag3_coor.lat, longitude: flag3_coor.long, altitude: 10, layer: hole3Layer)
+            layers.append(hole3Layer)
+            nodes.append(hole3)
+            hole3 = buildNode(latitude: flag3_coor.lat, longitude: flag3_coor.long, altitude: 10, imageName: "flag3")
+            nodes.append(hole3)
+    
+            for (idx, bunker) in flag3_bunkers.enumerated(){
+                let layer = CATextLayer()
+                layer.frame = CGRect(x: 0, y: 0, width: 200, height: 40)
+                layer.cornerRadius = 4
+                layer.fontSize = 14
+                layer.alignmentMode = .center
+                layer.foregroundColor = UIColor.black.cgColor
+                layer.backgroundColor = UIColor.white.cgColor
+                let time = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
+                    let location1 = self.sceneLocationView.sceneLocationManager.currentLocation
+                    let location2 = CLLocation(latitude: bunker.lat, longitude: bunker.long)
+                    let distanceInMeters = location1!.distance(from:location2)
+                    layer.string = String(format: "Bunker \(idx)\nDistance: %.1fm", distanceInMeters)
+                }
+                layers.append(layer)
+                hole3 = buildLayerNode(latitude: bunker.lat, longitude: bunker.long, altitude: 20, layer: layer)
+                nodes.append(hole3)
+            }
+        default:
+            print("Not a valid hole!")
         }
         
-        // Creating Hole 2 Node
-//        let hole2Layer = distance_layer
-//
-//        _ = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
-//            let location1 = self.sceneLocationView.sceneLocationManager.currentLocation
-//            let location2 = CLLocation(latitude: flag2_coor.lat, longitude: flag2_coor.long)
-//            let distanceInMeters = location1!.distance(from:location2)
-//            hole2Layer.string = String(format: "Flag 2\nDistance: %.1fm", distanceInMeters)
-//        }
-//        var hole2 = buildLayerNode(latitude: flag2_coor.lat, longitude: flag2_coor.long, altitude: 10, layer: hole2Layer)
-//        layers.append(hole2Layer)
-//        nodes.append(hole2)
-//        hole2 = buildNode(latitude: flag2_coor.lat, longitude: flag2_coor.long, altitude: 10, imageName: "flag2")
-//        nodes.append(hole2)
-//
-//        for (idx, bunker) in flag2_bunkers.enumerated(){
-//            let layer = CATextLayer()
-//            layer.frame = CGRect(x: 0, y: 0, width: 200, height: 40)
-//            layer.cornerRadius = 4
-//            layer.fontSize = 14
-//            layer.alignmentMode = .center
-//            layer.foregroundColor = UIColor.black.cgColor
-//            layer.backgroundColor = UIColor.white.cgColor
-//            let time = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
-//                let location1 = self.sceneLocationView.sceneLocationManager.currentLocation
-//                let location2 = CLLocation(latitude: bunker.lat, longitude: bunker.long)
-//                let distanceInMeters = location1!.distance(from:location2)
-//                layer.string = String(format: "Bunker \(idx)\nDistance: %.1fm", distanceInMeters)
-//            }
-//            layers.append(layer)
-//            hole2 = buildLayerNode(latitude: bunker.lat, longitude: bunker.long, altitude: 20, layer: layer)
-//            nodes.append(hole2)
-//        }
         
-        // Creating Hole 3 Node
-//        let hole3Layer = distance_layer
-//
-//        _ = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
-//            let location1 = self.sceneLocationView.sceneLocationManager.currentLocation
-//            let location2 = CLLocation(latitude: flag3_coor.lat, longitude: flag3_coor.long)
-//            let distanceInMeters = location1!.distance(from:location2)
-//            hole3Layer.string = String(format: "Flag 2\nDistance: %.1fm", distanceInMeters)
-//        }
-//        var hole3 = buildLayerNode(latitude: flag3_coor.lat, longitude: flag3_coor.long, altitude: 10, layer: hole2Layer)
-//        layers.append(hole3Layer)
-//        nodes.append(hole3)
-//        hole3 = buildNode(latitude: flag3_coor.lat, longitude: flag3_coor.long, altitude: 10, imageName: "flag3")
-//        nodes.append(hole3)
-//
-//        for (idx, bunker) in flag3_bunkers.enumerated(){
-//            let layer = CATextLayer()
-//            layer.frame = CGRect(x: 0, y: 0, width: 200, height: 40)
-//            layer.cornerRadius = 4
-//            layer.fontSize = 14
-//            layer.alignmentMode = .center
-//            layer.foregroundColor = UIColor.black.cgColor
-//            layer.backgroundColor = UIColor.white.cgColor
-//            let time = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
-//                let location1 = self.sceneLocationView.sceneLocationManager.currentLocation
-//                let location2 = CLLocation(latitude: bunker.lat, longitude: bunker.long)
-//                let distanceInMeters = location1!.distance(from:location2)
-//                layer.string = String(format: "Bunker \(idx)\nDistance: %.1fm", distanceInMeters)
-//            }
-//            layers.append(layer)
-//            hole3 = buildLayerNode(latitude: bunker.lat, longitude: bunker.long, altitude: 20, layer: layer)
-//            nodes.append(hole3)
-//        }
-
+        print("-----Finish Building Nodes-----")
         return nodes
 
     }
+    
+    
+    
+    
 
     @objc
     func updateUserLocation() {
@@ -612,29 +713,29 @@ extension POIViewController {
         }
     }
 
-    @objc
-    func updateInfoLabel() {
-        if let position = sceneLocationView.currentScenePosition {
-            infoLabel.text = " x: \(position.x.short), y: \(position.y.short), z: \(position.z.short)\n"
-        }
-
-        if let eulerAngles = sceneLocationView.currentEulerAngles {
-            infoLabel.text!.append(" Euler x: \(eulerAngles.x.short), y: \(eulerAngles.y.short), z: \(eulerAngles.z.short)\n")
-        }
-
-        if let eulerAngles = sceneLocationView.currentEulerAngles,
-            let heading = sceneLocationView.sceneLocationManager.locationManager.heading,
-            let headingAccuracy = sceneLocationView.sceneLocationManager.locationManager.headingAccuracy {
-            let yDegrees = (((0 - eulerAngles.y.radiansToDegrees) + 360).truncatingRemainder(dividingBy: 360) ).short
-            infoLabel.text!.append(" Heading: \(yDegrees)° • \(Float(heading).short)° • \(headingAccuracy)°\n")
-        }
-
-        let comp = Calendar.current.dateComponents([.hour, .minute, .second, .nanosecond], from: Date())
-        if let hour = comp.hour, let minute = comp.minute, let second = comp.second, let nanosecond = comp.nanosecond {
-            let nodeCount = "\(sceneLocationView.sceneNode?.childNodes.count.description ?? "n/a") ARKit Nodes"
-            infoLabel.text!.append(" \(hour.short):\(minute.short):\(second.short):\(nanosecond.short3) • \(nodeCount)")
-        }
-    }
+//    @objc
+//    func updateInfoLabel() {
+//        if let position = sceneLocationView.currentScenePosition {
+//            infoLabel.text = " x: \(position.x.short), y: \(position.y.short), z: \(position.z.short)\n"
+//        }
+//
+//        if let eulerAngles = sceneLocationView.currentEulerAngles {
+//            infoLabel.text!.append(" Euler x: \(eulerAngles.x.short), y: \(eulerAngles.y.short), z: \(eulerAngles.z.short)\n")
+//        }
+//
+//        if let eulerAngles = sceneLocationView.currentEulerAngles,
+//            let heading = sceneLocationView.sceneLocationManager.locationManager.heading,
+//            let headingAccuracy = sceneLocationView.sceneLocationManager.locationManager.headingAccuracy {
+//            let yDegrees = (((0 - eulerAngles.y.radiansToDegrees) + 360).truncatingRemainder(dividingBy: 360) ).short
+//            infoLabel.text!.append(" Heading: \(yDegrees)° • \(Float(heading).short)° • \(headingAccuracy)°\n")
+//        }
+//
+//        let comp = Calendar.current.dateComponents([.hour, .minute, .second, .nanosecond], from: Date())
+//        if let hour = comp.hour, let minute = comp.minute, let second = comp.second, let nanosecond = comp.nanosecond {
+//            let nodeCount = "\(sceneLocationView.sceneNode?.childNodes.count.description ?? "n/a") ARKit Nodes"
+//            infoLabel.text!.append(" \(hour.short):\(minute.short):\(second.short):\(nanosecond.short3) • \(nodeCount)")
+//        }
+//    }
 
     func buildNode(latitude: CLLocationDegrees, longitude: CLLocationDegrees,
                    altitude: CLLocationDistance, imageName: String) -> LocationAnnotationNode {
@@ -757,29 +858,6 @@ extension POIViewController {
         }
         
         
-    }
-
-}
-
-// MARK: - LNTouchDelegate
-@available(iOS 11.0, *)
-extension POIViewController: LNTouchDelegate {
-
-    func annotationNodeTouched(node: AnnotationNode) {
-        if let node = node.parent as? LocationNode {
-            let coords = "\(node.location.coordinate.latitude.short)° \(node.location.coordinate.longitude.short)°"
-            let altitude = "\(node.location.altitude.short)m"
-            let tag = node.tag ?? ""
-            nodePositionLabel.text = " Annotation node at \(coords), \(altitude) - \(tag)"
-        }
-    }
-
-    func locationNodeTouched(node: LocationNode) {
-        print("Location node touched - tag: \(node.tag ?? "")")
-        let coords = "\(node.location.coordinate.latitude.short)° \(node.location.coordinate.longitude.short)°"
-        let altitude = "\(node.location.altitude.short)m"
-        let tag = node.tag ?? ""
-        nodePositionLabel.text = " Location node at \(coords), \(altitude) - \(tag)"
     }
 
 }
