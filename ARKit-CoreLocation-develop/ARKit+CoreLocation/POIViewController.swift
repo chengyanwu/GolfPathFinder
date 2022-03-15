@@ -74,7 +74,7 @@ class POIViewController: UIViewController {
         }
     }
     
-    var clubs: [Int] = [250, 200, 150, 100, 50]
+    var clubs: [Int] = [700, 600, 500, 100, 50]
     
     var modelNode:SCNNode!
     let rooteNodeName = "Object-1"
@@ -168,6 +168,9 @@ class POIViewController: UIViewController {
 //            sceneLocationView.locationNodes = nil
 //            sceneLocationView.sceneNode = nil
             sceneLocationView.removeAllNodes()
+            if (self.modelNode != nil){
+                self.modelNode.removeFromParentNode()
+            }
             addSceneModels()
         }else{
             print("----Listening----")
@@ -374,143 +377,205 @@ extension POIViewController {
         var long = 0.0
     }
     
+    func chooseClub(dist: Double) -> Int{
+        self.clubs.sort(by: >)
+        if (Double(clubs[0]) < dist) {
+                   return 0
+               }
+               var curClub = 0
+               for (i, club) in clubs.enumerated() {
+                   if (Double(club) < dist){
+                       return i
+                   }
+                   curClub = i
+               }
+               return curClub
+           }
+    
     func APICall(){
-        let API_token = "WgB5mUDvCh94P5JGMjoPI2on3vnK7TVh8GOrQDvx"
-        let access_key = "AKIAY4WGH3URFU3AQXC3"
-        let secret_key = "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"
-        
-        let urlString_flag = "https://api.golfbert.com/v1/courses/1593/holes"
-        let urlString_polygon1 = "https://api.golfbert.com/v1/holes/67111/polygons"
-        let urlString_polygon2 = "https://api.golfbert.com/v1/holes/67112/polygons"
-        
-        var urlRequest = URLRequest(url:URL(string: urlString_flag)!)
-        urlRequest.httpMethod = "GET"
-        urlRequest.addValue(API_token, forHTTPHeaderField: "x-api-key")
-        urlRequest.addValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
-        
-        try! urlRequest.sign(accessKeyId: access_key, secretAccessKey: secret_key)
-        
-        let group = DispatchGroup()
-        group.enter()
-        let task1 = URLSession.shared.dataTask(with: urlRequest, completionHandler:{
-            (data: Data!, response: URLResponse!, error: Error!) -> Void in
-            print("enterning url session 1")
-//            group.enter()
-            let json = try! JSONDecoder().decode(JSON_Flag.self, from:data)
+            let API_token = "WgB5mUDvCh94P5JGMjoPI2on3vnK7TVh8GOrQDvx"
+            let access_key = "AKIAY4WGH3URFU3AQXC3"
+            let secret_key = "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"
             
+            let urlString_flag = "https://api.golfbert.com/v1/courses/1593/holes"
+            let urlString_polygon1 = "https://api.golfbert.com/v1/holes/67111/polygons"
+            let urlString_polygon2 = "https://api.golfbert.com/v1/holes/67112/polygons"
+            let urlString_polygon3 = "https://api.golfbert.com/v1/holes/67113/polygons"
             
-            self.flag1_coor.lat = json.resources[0].flagcoords.lat
-            self.flag1_coor.long = json.resources[0].flagcoords.long
+            var urlRequest = URLRequest(url:URL(string: urlString_flag)!)
+            urlRequest.httpMethod = "GET"
+            urlRequest.addValue(API_token, forHTTPHeaderField: "x-api-key")
+            urlRequest.addValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
             
-//            flag2_coor.lat = json.resources[1].flagcoords.lat
-//            flag2_coor.long = json.resources[1].flagcoords.long
-//
-//            flag3_coor.lat = json.resources[2].flagcoords.lat
-//            flag3_coor.long = json.resources[2].flagcoords.long
-//
-//            flag4_lat = json.resources[3].flagcoords.lat
-//            flag4_long = json.resources[3].flagcoords.long
+            try! urlRequest.sign(accessKeyId: access_key, secretAccessKey: secret_key)
             
+            let group = DispatchGroup()
+            group.enter()
+            let task1 = URLSession.shared.dataTask(with: urlRequest, completionHandler:{
+                (data: Data!, response: URLResponse!, error: Error!) -> Void in
+                print("enterning url session 1")
+    //            group.enter()
+                let json = try! JSONDecoder().decode(JSON_Flag.self, from:data)
+                
+                
+                self.flag1_coor.lat = json.resources[0].flagcoords.lat
+                self.flag1_coor.long = json.resources[0].flagcoords.long
+                
+                self.flag2_coor.lat = json.resources[1].flagcoords.lat
+                self.flag2_coor.long = json.resources[1].flagcoords.long
 
-            print(self.flag1_coor)
-            
-            
-            print("leaving url session 1")
-            group.leave()
+                self.flag3_coor.lat = json.resources[2].flagcoords.lat
+                self.flag3_coor.long = json.resources[2].flagcoords.long
 
-        }).resume()
-        
-        var urlRequest2 = URLRequest(url:URL(string: urlString_polygon1)!)
-        urlRequest2.httpMethod = "GET"
-        urlRequest2.addValue(API_token, forHTTPHeaderField: "x-api-key")
-        urlRequest2.addValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
-        try! urlRequest2.sign(accessKeyId: access_key, secretAccessKey: secret_key)
-        group.enter()
-        let task2 = URLSession.shared.dataTask(with: urlRequest2, completionHandler:{
-            (data: Data!, response: URLResponse!, error: Error!) -> Void in
-            print("enterning url session 2")
-            let json = try! JSONDecoder().decode(JSONPoly.self, from:data)
-            
-            var lat = 0.0
-            var long = 0.0
-            var count = 0.0
-            var coor_tmp = coor()
-//            for resource in json.resources{
-//                if(resource.surfacetype == Surfacetype.sand){
-//                    for poly in resource.polygon{
-//                        lat += poly.lat
-//                        long += poly.long
-//                        count += 1
-//                    }
-//                    coor_tmp.lat = lat / count
-//                    coor_tmp.long = long / count
-//                    flag1_bunkers.append(coor_tmp)
-//                }
-//            }
-            for poly in json.resources[0].polygon{
-                self.flag1_greens.append(coor(lat: poly.lat, long: poly.long))
-            }
-            for poly in json.resources[1].polygon{
-                self.flag1_fairways.append(coor(lat: poly.lat, long: poly.long))
-            }
-            self.flag1_bunkers.append(coor(lat: 34.383622, long: -119.817028))
-            self.flag1_bunkers.append(coor(lat: 34.376743, long: -119.851897))
-            self.flag1_bunkers.append(coor(lat: 34.375485, long: -119.890519))
-            self.flag1_bunkers.append(coor(lat: 34.395056, long: -119.934223))
-            
-            print(self.flag1_bunkers)
-            
-            group.leave()
-            print("leaving url session 2")
+    //            flag4_lat = json.resources[3].flagcoords.lat
+    //            flag4_long = json.resources[3].flagcoords.long
+                
 
-        }).resume()
-        
-        var urlRequest3 = URLRequest(url:URL(string: urlString_polygon2)!)
-        urlRequest3.httpMethod = "GET"
-        urlRequest3.addValue(API_token, forHTTPHeaderField: "x-api-key")
-        urlRequest3.addValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
-        try! urlRequest3.sign(accessKeyId: access_key, secretAccessKey: secret_key)
-        
-        group.enter()
-        let task3 = URLSession.shared.dataTask(with: urlRequest3, completionHandler:{
-            (data: Data!, response: URLResponse!, error: Error!) -> Void in
-            print("enterning url session 3")
-            let json = try! JSONDecoder().decode(JSONPoly.self, from:data)
+    //            print(self.flag1_coor)
+                
+                
+                print("leaving url session 1")
+                group.leave()
+
+            }).resume()
             
-            var lat = 0.0
-            var long = 0.0
-            var count = 0.0
-            var coor_tmp = coor()
-            for resource in json.resources{
-                if(resource.surfacetype == Surfacetype.sand){
-                    for poly in resource.polygon{
-                        lat += poly.lat
-                        long += poly.long
-                        count += 1
+            var urlRequest2 = URLRequest(url:URL(string: urlString_polygon1)!)
+            urlRequest2.httpMethod = "GET"
+            urlRequest2.addValue(API_token, forHTTPHeaderField: "x-api-key")
+            urlRequest2.addValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
+            try! urlRequest2.sign(accessKeyId: access_key, secretAccessKey: secret_key)
+            group.enter()
+            let task2 = URLSession.shared.dataTask(with: urlRequest2, completionHandler:{
+                (data: Data!, response: URLResponse!, error: Error!) -> Void in
+                print("enterning url session 2")
+                let json = try! JSONDecoder().decode(JSONPoly.self, from:data)
+                
+                var lat = 0.0
+                var long = 0.0
+                var count = 0.0
+                var coor_tmp = coor()
+                for resource in json.resources{
+                    if(resource.surfacetype == Surfacetype.sand){
+                        for poly in resource.polygon{
+                            lat += poly.lat
+                            long += poly.long
+                            count += 1
+                        }
+                        coor_tmp.lat = lat / count
+                        coor_tmp.long = long / count
+                        self.flag1_bunkers.append(coor_tmp)
                     }
-                    coor_tmp.lat = lat / count
-                    coor_tmp.long = long / count
-                    self.flag2_bunkers.append(coor_tmp)
                 }
-            }
-            
-            for poly in json.resources[0].polygon{
-                self.flag2_greens.append(coor(lat: poly.lat, long: poly.long))
-            }
-            for poly in json.resources[1].polygon{
-                self.flag2_fairways.append(coor(lat: poly.lat, long: poly.long))
-            }
-            
-            print(self.flag2_bunkers)
-            
-            group.leave()
-            print("leaving url session 3")
+                for poly in json.resources[0].polygon{
+                    self.flag1_greens.append(coor(lat: poly.lat, long: poly.long))
+                }
+                for poly in json.resources[1].polygon{
+                    self.flag1_fairways.append(coor(lat: poly.lat, long: poly.long))
+                }
+    //            self.flag1_bunkers.append(coor(lat: 34.383622, long: -119.817028))
+    //            self.flag1_bunkers.append(coor(lat: 34.376743, long: -119.851897))
+    //            self.flag1_bunkers.append(coor(lat: 34.375485, long: -119.890519))
+    //            self.flag1_bunkers.append(coor(lat: 34.395056, long: -119.934223))
+                
+                print(self.flag1_bunkers)
+                
+                group.leave()
+                print("leaving url session 2")
 
-        }).resume()
+            }).resume()
+            
+            var urlRequest3 = URLRequest(url:URL(string: urlString_polygon2)!)
+            urlRequest3.httpMethod = "GET"
+            urlRequest3.addValue(API_token, forHTTPHeaderField: "x-api-key")
+            urlRequest3.addValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
+            try! urlRequest3.sign(accessKeyId: access_key, secretAccessKey: secret_key)
+            
+            group.enter()
+            let task3 = URLSession.shared.dataTask(with: urlRequest3, completionHandler:{
+                (data: Data!, response: URLResponse!, error: Error!) -> Void in
+                print("enterning url session 3")
+                let json = try! JSONDecoder().decode(JSONPoly.self, from:data)
+                
+                var lat = 0.0
+                var long = 0.0
+                var count = 0.0
+                var coor_tmp = coor()
+                for resource in json.resources{
+                    if(resource.surfacetype == Surfacetype.sand){
+                        for poly in resource.polygon{
+                            lat += poly.lat
+                            long += poly.long
+                            count += 1
+                        }
+                        coor_tmp.lat = lat / count
+                        coor_tmp.long = long / count
+                        self.flag2_bunkers.append(coor_tmp)
+                    }
+                }
+                
+                for poly in json.resources[0].polygon{
+                    self.flag2_greens.append(coor(lat: poly.lat, long: poly.long))
+                }
+                for poly in json.resources[1].polygon{
+                    self.flag2_fairways.append(coor(lat: poly.lat, long: poly.long))
+                }
+                
+                print(self.flag2_bunkers)
+                
+                group.leave()
+                print("leaving url session 3")
+
+            }).resume()
+            
+            
+            var urlRequest4 = URLRequest(url:URL(string: urlString_polygon3)!)
+            urlRequest4.httpMethod = "GET"
+            urlRequest4.addValue(API_token, forHTTPHeaderField: "x-api-key")
+            urlRequest4.addValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
+            try! urlRequest4.sign(accessKeyId: access_key, secretAccessKey: secret_key)
+            
+            group.enter()
+            let task4 = URLSession.shared.dataTask(with: urlRequest4, completionHandler:{
+                (data: Data!, response: URLResponse!, error: Error!) -> Void in
+                print("enterning url session 4")
+                let json = try! JSONDecoder().decode(JSONPoly.self, from:data)
+                
+                var lat = 0.0
+                var long = 0.0
+                var count = 0.0
+                var coor_tmp = coor()
+                for resource in json.resources{
+                    if(resource.surfacetype == Surfacetype.sand){
+                        for poly in resource.polygon{
+                            lat += poly.lat
+                            long += poly.long
+                            count += 1
+                        }
+                        coor_tmp.lat = lat / count
+                        coor_tmp.long = long / count
+                        self.flag3_bunkers.append(coor_tmp)
+                    }
+                }
+                
+                for poly in json.resources[0].polygon{
+                    self.flag3_greens.append(coor(lat: poly.lat, long: poly.long))
+                }
+                for poly in json.resources[1].polygon{
+                    self.flag3_fairways.append(coor(lat: poly.lat, long: poly.long))
+                }
+                
+    //            print(self.flag3_bunkers)
+                
+                group.leave()
+                print("leaving url session 4")
+
+            }).resume()
+            
+            
+            group.wait()
+            print("All url session ended")
         
-        group.wait()
-        print("All url session ended")
-    }
+        }
     
     /// Builds the location annotations for a few random objects, scattered across the country
     ///
@@ -537,7 +602,12 @@ extension POIViewController {
             hole1Layer.foregroundColor = UIColor.black.cgColor
             hole1Layer.backgroundColor = UIColor.white.cgColor
             
-            var hole1 = buildLayerNode(latitude: self.flag1_coor.lat, longitude: self.flag1_coor.long, altitude: 20, layer: hole1Layer)
+            flag1_coor.lat = 34.414726
+            flag1_coor.long = -119.842560
+            flag1_greens = []
+            flag1_fairways = []
+            
+            var hole1 = buildLayerNode(latitude: self.flag1_coor.lat, longitude: self.flag1_coor.long, altitude: 0, layer: hole1Layer)
             if(flagOn){
                 _ = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
                     let location1 = self.sceneLocationView.sceneLocationManager.currentLocation
@@ -546,9 +616,9 @@ extension POIViewController {
                     hole1Layer.string = String(format: "Flag 1\nDistance: %.1fm", distanceInMeters)
                 }
                 layers.append(hole1Layer)
-//                var hole1 = buildLayerNode(latitude: self.flag1_coor.lat, longitude: self.flag1_coor.long, altitude: 20, layer: hole1Layer)
+//                var hole1 = buildLayerNode(latitude: self.flag1_coor.lat, longitude: self.flag1_coor.long, altitude: 0, layer: hole1Layer)
                 nodes.append(hole1)
-                hole1 = buildNode(latitude: flag1_coor.lat, longitude: flag1_coor.long, altitude: 200, imageName: "flag1")
+                hole1 = buildNode(latitude: flag1_coor.lat, longitude: flag1_coor.long, altitude: 0, imageName: "flag1")
                 nodes.append(hole1)
             }
             if(bunkerOn){
@@ -567,15 +637,17 @@ extension POIViewController {
                         layer.string = String(format: "Bunker \(idx)\nDistance: %.1fm", distanceInMeters)
                     }
                     layers.append(layer)
-                    hole1 = buildLayerNode(latitude: bunker.lat, longitude: bunker.long, altitude: 20, layer: layer)
+                    hole1 = buildLayerNode(latitude: bunker.lat, longitude: bunker.long, altitude: 0, layer: layer)
                     nodes.append(hole1)
-                    hole1 = buildNode(latitude: bunker.lat, longitude: bunker.long, altitude: 100, imageName: "bunker")
+                    hole1 = buildNode(latitude: bunker.lat, longitude: bunker.long, altitude: 0, imageName: "bunker")
                     nodes.append(hole1)
                 }
             }
                 
-            if(pathOn){
-                updateArcLocation(latitude: flag1_coor.lat, longitude: flag1_coor.long, altitude: 20)
+            
+            if(flagOn){
+                updateArcLocation(latitude: 34.414726, longitude:
+                                    -119.842560, altitude: 20, fairWay: flag1_fairways, green: flag1_greens)
             }
         case 2:
             // Creating Hole 1 Node
@@ -587,7 +659,12 @@ extension POIViewController {
             hole2Layer.foregroundColor = UIColor.black.cgColor
             hole2Layer.backgroundColor = UIColor.white.cgColor
             
-            var hole2 = buildLayerNode(latitude: self.flag2_coor.lat, longitude: self.flag2_coor.long, altitude: 20, layer: hole2Layer)
+            flag2_coor.lat = 34.415074
+            flag2_coor.long = -119.842105
+            flag2_greens = []
+            flag2_fairways = []
+            
+            var hole2 = buildLayerNode(latitude: self.flag2_coor.lat, longitude: self.flag2_coor.long, altitude: 0, layer: hole2Layer)
             if(flagOn){
                 _ = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
                     let location1 = self.sceneLocationView.sceneLocationManager.currentLocation
@@ -598,7 +675,7 @@ extension POIViewController {
                 layers.append(hole2Layer)
 //                var hole1 = buildLayerNode(latitude: self.flag1_coor.lat, longitude: self.flag1_coor.long, altitude: 20, layer: hole1Layer)
                 nodes.append(hole2)
-                hole2 = buildNode(latitude: flag2_coor.lat, longitude: flag2_coor.long, altitude: 200, imageName: "flag2")
+                hole2 = buildNode(latitude: flag2_coor.lat, longitude: flag2_coor.long, altitude: 0, imageName: "flag2")
                 nodes.append(hole2)
             }
             if(bunkerOn){
@@ -617,15 +694,16 @@ extension POIViewController {
                         layer.string = String(format: "Bunker \(idx)\nDistance: %.1fm", distanceInMeters)
                     }
                     layers.append(layer)
-                    hole2 = buildLayerNode(latitude: bunker.lat, longitude: bunker.long, altitude: 20, layer: layer)
+                    hole2 = buildLayerNode(latitude: bunker.lat, longitude: bunker.long, altitude: 0, layer: layer)
                     nodes.append(hole2)
-                    hole2 = buildNode(latitude: bunker.lat, longitude: bunker.long, altitude: 100, imageName: "bunker")
+                    hole2 = buildNode(latitude: bunker.lat, longitude: bunker.long, altitude: 0, imageName: "bunker")
                     nodes.append(hole2)
                 }
             }
+            
                 
-            if(pathOn){
-                updateArcLocation(latitude: flag2_coor.lat, longitude: flag2_coor.long, altitude: 20)
+            if(flagOn){
+                updateArcLocation(latitude: 34.415074, longitude: -119.842105, altitude: 20, fairWay: flag2_fairways, green: flag2_greens)
             }
             
         case 3:
@@ -649,7 +727,7 @@ extension POIViewController {
                 layers.append(hole3Layer)
 //                var hole1 = buildLayerNode(latitude: self.flag1_coor.lat, longitude: self.flag1_coor.long, altitude: 20, layer: hole1Layer)
                 nodes.append(hole3)
-                hole3 = buildNode(latitude: flag3_coor.lat, longitude: flag3_coor.long, altitude: 200, imageName: "flag3")
+                hole3 = buildNode(latitude: flag3_coor.lat, longitude: flag3_coor.long, altitude: 20, imageName: "flag3")
                 nodes.append(hole3)
             }
             if(bunkerOn){
@@ -670,13 +748,13 @@ extension POIViewController {
                     layers.append(layer)
                     hole3 = buildLayerNode(latitude: bunker.lat, longitude: bunker.long, altitude: 20, layer: layer)
                     nodes.append(hole3)
-                    hole3 = buildNode(latitude: bunker.lat, longitude: bunker.long, altitude: 100, imageName: "bunker")
+                    hole3 = buildNode(latitude: bunker.lat, longitude: bunker.long, altitude: 20, imageName: "bunker")
                     nodes.append(hole3)
                 }
             }
                 
-            if(pathOn){
-                updateArcLocation(latitude: flag3_coor.lat, longitude: flag3_coor.long, altitude: 20)
+            if(flagOn){
+                updateArcLocation(latitude: flag3_coor.lat, longitude: flag3_coor.long, altitude: 20, fairWay: flag1_fairways, green: flag3_greens)
             }
         default:
             print("Not a valid hole!")
@@ -747,6 +825,7 @@ extension POIViewController {
 //        if let eulerAngles = sceneLocationView.currentEulerAngles {
 //            infoLabel.text!.append(" Euler x: \(eulerAngles.x.short), y: \(eulerAngles.y.short), z: \(eulerAngles.z.short)\n")
 //        }
+    
 //
 //        if let eulerAngles = sceneLocationView.currentEulerAngles,
 //            let heading = sceneLocationView.sceneLocationManager.locationManager.heading,
@@ -781,20 +860,7 @@ extension POIViewController {
         return LocationAnnotationNode(location: location, view: label)
     }
     
-    func chooseClub(dist: Double) -> Int{
-        self.clubs.sort(by: >)
-        if (Double(clubs[0]) < dist) {
-                   return 0
-               }
-               var curClub = 0
-               for (i, club) in clubs.enumerated() {
-                   if (Double(club) < dist){
-                       return i
-                   }
-                   curClub = i
-               }
-               return curClub
-           }
+    
 
     func buildLayerNode(latitude: CLLocationDegrees, longitude: CLLocationDegrees,
                         altitude: CLLocationDistance, layer: CALayer) -> LocationAnnotationNode {
@@ -818,7 +884,7 @@ extension POIViewController {
     }
         
     func updateArcLocation(latitude: CLLocationDegrees, longitude: CLLocationDegrees,
-                                altitude: CLLocationDistance) {
+                           altitude: CLLocationDistance, fairWay: [coor], green: [coor]) {
         let location = CLLocation(latitude: latitude, longitude: longitude)
         
 
@@ -840,20 +906,21 @@ extension POIViewController {
         let clubRange = clubs[recommendedClub]
         
         var greenPoints: [GreenPoint] = []
-        for point in self.flag1_fairways {
-                    greenPoints.append(GreenPoint(lat: point.lat, lon: point.long, start: curLocation!, target: location))
-                }
-        
-        for point in self.flag1_greens {
-                    greenPoints.append(GreenPoint(lat: point.lat, lon: point.long, start: curLocation!, target: location))
-                }
+//        for point in fairWay {
+//                    greenPoints.append(GreenPoint(lat: point.lat, lon: point.long, start: curLocation!, target: location))
+//                }
+//
+//        for point in green {
+//                    greenPoints.append(GreenPoint(lat: point.lat, lon: point.long, start: curLocation!, target: location))
+//                }
         
         greenPoints.append(GreenPoint(lat: location.coordinate.latitude, lon: location.coordinate.longitude, start: curLocation!, target: location))
+        var chosenPoints: [GreenPoint] = []
 
+        chosenPoints.append(GreenPoint(lat: location.coordinate.latitude, lon: location.coordinate.longitude, start: curLocation!, target: location))
                 greenPoints = greenPoints.sorted(by: { $0.distToTarget < $1.distToTarget })
 
 
-                var chosenPoints: [GreenPoint] = []
 
                 var curPoint = GreenPoint(lat: curLocation!.coordinate.latitude, lon: curLocation!.coordinate.longitude, start: curLocation!, target: location)
 
@@ -888,11 +955,14 @@ extension POIViewController {
         print(location.distance(from: curLocation!))
                 print(curLocation!.coordinate)
                 print("*************************************")
+        if (self.modelNode != nil){
+            self.modelNode.removeFromParentNode()
+        }
+
 
                 var arcStartX = 0.5
                 var arcStartY = -0.5
                 var parent = sceneLocationView.scene.rootNode
-
 
                 for point in chosenPoints {
                     let location = CLLocation(latitude: point.lat, longitude: point.lon)
@@ -907,11 +977,15 @@ extension POIViewController {
                                 self.userLocation = curLocation
 
 
-                                    let arcDist = min(distance!, 400)
+                                    let arcDist = min(distance!, 1000)
 
-                                    let controlHeight = (arcDist / 2) * tan(35)
+                    let controlHeight = (arcDist / 2) * tan(30.0.toRadians())
 
-
+                    
+                                    print("arcDist", arcDist)
+                                    print("height", controlHeight)
+                                    
+                    
                                     let path = UIBezierPath()
                                     path.move(to: CGPoint(x: arcStartX, y: arcStartY))
                                     path.addQuadCurve(to: CGPoint(x: arcStartX + arcDist, y: arcStartY), controlPoint: CGPoint(x: arcStartX + (arcDist / 2), y: controlHeight))
@@ -944,8 +1018,9 @@ extension POIViewController {
                                     
                                 curLocation = location
                                 arcStartX = arcStartX + arcDist
-                                parent = arcNode
 
+                                print("---------")
+                    print(arcNode)
                                 print(arcNode.simdTransform)
                                 break;
                             }
